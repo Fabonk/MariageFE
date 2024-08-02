@@ -239,6 +239,7 @@
   <div id="guestsPage" class="page">
     <div class="section">
       <h2>Enregistrer un Invité</h2>
+      <p id="guestCount">Nombre total d'invités : 0</p>
       <form id="guestForm" method="GET" action="/register-guest">
         <input type="text" id="guestName" name="guestName" placeholder="Nom de l'invité" required>
         <input type="text" id="tableName" name="tableName" placeholder="Nom de la table" required>
@@ -270,6 +271,7 @@
   <div id="logPage" class="page">
     <div class="section">
       <h2>Journal des Invités Scannés</h2>
+      <p id="scanCount">Nombre d'invités scannés : 0</p>
       <ul id="scanLog"></ul>
     </div>
   </div>
@@ -314,6 +316,8 @@
             const couplePhoto = document.getElementById('couplePhoto');
             const scannerModal = document.getElementById('scannerModal');
             const closeScannerModal = document.getElementById('closeScannerModal');
+            const guestCountElement = document.getElementById('guestCount');
+            const scanCountElement = document.getElementById('scanCount');
             let html5QrCode;
 
             // Référence à la base de données Firebase
@@ -333,7 +337,9 @@
             });
 
             function updateGuestList(guests) {
-                guestList.innerHTML = '';
+              guestList.innerHTML = '';
+                const guestCount = Object.keys(guests).length;
+                guestCountElement.textContent = `Nombre total d'invités : ${guestCount}`;
                 Object.entries(guests).forEach(([id, guest]) => {
                     const li = document.createElement('li');
                     
@@ -386,6 +392,8 @@
 
             function updateScanLog(scans) {
                 scanLog.innerHTML = '';
+                const scanCount = Object.keys(scans).length;
+                scanCountElement.textContent = `Nombre d'invités scannés : ${scanCount}`;
                 Object.entries(scans).forEach(([id, scan]) => {
                     const li = document.createElement('li');
                     const scanName = document.createElement('span');
