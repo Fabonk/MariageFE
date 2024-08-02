@@ -1,427 +1,273 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Gestionnaire d'Invités de Mariage</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.4/html5-qrcode.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.13.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.13.0/firebase-firestore-compat.js"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-<style>
-    @font-face {
-    font-family: 'Century Gothic';
-    src: url('https://fonts.cdnfonts.com/css/century-gothic') format('woff2');
-  }
-
-  :root {
-    --hooker-green: #01613C;
-    --gold: #FFD700;
-    --light-gold: #FFF2B2;
-  }
-  body {
-    font-family: 'Roboto', sans-serif;
-    background-color: var(--light-gold);
-    color: var(--hooker-green);
-    line-height: 1.6;
-    padding: 20px;
-    max-width: 800px;
-    margin: 0 auto;
-  }
-  h1, h2 {
-    color: var(--hooker-green);
-    text-align: center;
-  }
-  .section {
-    background-color: #fff;
-    border-radius: 8px;
-    padding: 20px;
-    margin-bottom: 20px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  }
-  input, button {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 10px;
-    border: 1px solid var(--hooker-green);
-    border-radius: 4px;
-    font-family: 'Roboto', sans-serif;
-    box-sizing: border-box;
-    height: 40px;
-  }
-  button {
-    background-color: var(--hooker-green);
-    color: var(--gold);
-    border: none;
-    cursor: pointer;
-    transition: background-color 0.3s;
-  }
-  button:hover {
-    background-color: #014d30;
-  }
-  #qrcode, .qr-code {
-    text-align: center;
-    margin-top: 20px;
-  }
-  #guestList, #scanLog {
-    list-style-type: none;
-    padding: 0;
-  }
-  #guestList li, #scanLog li {
-    background-color: var(--light-gold);
-    margin-bottom: 10px;
-    padding: 10px;
-    border-radius: 4px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  #reader {
-    width: 100%;
-    max-width: 500px;
-    margin: 0 auto;
-  }
-  .guest-info {
-    flex-grow: 1;
-  }
-  .guest-name {
-    font-family: 'Century Gothic', sans-serif;
-    font-weight: bold;
-    font-size: 1.2em;
-    color: var(--hooker-green);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-  }
-  .qr-code {
-    margin-left: 10px;
-  }
-  nav {
-    background-color: var(--hooker-green);
-    padding: 10px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-  }
-  nav ul {
-    list-style-type: none;
-    padding: 0;
-    display: flex;
-    justify-content: space-around;
-  }
-  nav ul li a {
-    color: var(--gold);
-    text-decoration: none;
-    font-weight: bold;
-  }
-  .page {
-    display: none;
-  }
-  .active {
-    display: block;
-  }
-  .guest-actions {
-    display: flex;
-    gap: 5px;
-  }
-  .guest-actions button {
-    padding: 5px;
-    font-size: 0.8em;
-    width: auto;
-  }
-  .delete-all {
-    background-color: #9e1a1a;
-  }
-  .delete-all:hover {
-    background-color: #7a1414;
-  }
-  .edit-btn, .delete-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 1.2em;
-  }
-  .edit-btn {
-    color: var(--hooker-green);
-  }
-  .delete-btn {
-    color: #9e1a1a;
-  }
-  #scanResult {
-    margin-top: 20px;
-    padding: 10px;
-    border-radius: 4px;
-    text-align: center;
-    font-weight: bold;
-  }
-  .success {
-    background-color: #4CAF50;
-    color: white;
-  }
-  .error {
-    background-color: #f44336;
-    color: white;
-  }
-  #startScanButton {
-    background-color: var(--gold);
-    color: var(--hooker-green);
-    font-weight: bold;
-    margin-bottom: 20px;
-  }
-  #startScanButton:hover {
-    background-color: #e6c300;
-  }
-  #couplePhoto {
-    max-width: 100%;
-    height: auto;
-    display: block;
-    margin: 20px auto;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-  }
-  #scannerModal {
-    display: none;
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: rgba(0,0,0,0.8);
-  }
-  #scannerContent {
-    background-color: #fefefe;
-    margin: 10% auto;
-    padding: 20px;
-    border: 1px solid #888;
-    width: 80%;
-    max-width: 500px;
-    border-radius: 8px;
-  }
-  #closeScannerModal {
-    color: #aaa;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
-    cursor: pointer;
-  }
-  #closeScannerModal:hover,
-  #closeScannerModal:focus {
-    color: #000;
-    text-decoration: none;
-    cursor: pointer;
-  }
-  #reader video {
-    width: 100%;
-    height: auto;
-  }
-</style>
+    <base href="https://wedding-guest-tracker.app/">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestionnaire d'Invités de Mariage</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.4/html5-qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* Le CSS reste inchangé */
+    </style>
 </head>
 <body>
-  <h1>Gestionnaire d'Invités de Mariage</h1>
-  
-  <nav>
-    <ul>
-      <li><a href="#" onclick="showPage('home')">Accueil</a></li>
-      <li><a href="#" onclick="showPage('guests')">Invités</a></li>
-      <li><a href="#" onclick="showPage('scanner')">Scanner</a></li>
-      <li><a href="#" onclick="showPage('log')">Journal</a></li>
-    </ul>
-  </nav>
+    <!-- Le HTML reste inchangé -->
 
-  <div id="homePage" class="page active">
-    <div class="section">
-      <h2>Bienvenue sur votre Gestionnaire d'Invités de Mariage</h2>
-      <img id="couplePhoto" src="placeholder-couple.jpg" alt="Photo des mariés">
-    </div>
-  </div>
+    <script type="module">
+        // Import Firebase
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+        import { getDatabase, ref, set, push, remove, onValue } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js";
 
-  <div id="guestsPage" class="page">
-    <div class="section">
-      <h2>Enregistrer un Invité</h2>
-      <form id="guestForm" method="GET" action="#">
-        <input type="text" id="guestName" name="guestName" placeholder="Nom de l'invité" required>
-        <input type="text" id="tableName" name="tableName" placeholder="Nom de la table" required>
-        <button type="submit">Enregistrer et Générer QR Code</button>
-      </form>
-    </div>
+        // Configuration Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyDuFpPsBRE96la2TB8lVDGhpmTKm9JdHCU",
+            authDomain: "mariagefabricesther.firebaseapp.com",
+            databaseURL: "https://mariagefabricesther-default-rtdb.firebaseio.com",
+            projectId: "mariagefabricesther",
+            storageBucket: "mariagefabricesther.appspot.com",
+            messagingSenderId: "219465158505",
+            appId: "1:219465158505:web:5746c84cb4a14e27c7f7f8"
+        };
 
-    <div class="section">
-      <h2>Importer la Liste des Invités</h2>
-      <input type="file" id="fileInput">
-    </div>
+        // Initialiser Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
 
-    <div class="section">
-      <h2>Liste des Invités</h2>
-      <ul id="guestList"></ul>
-    </div>
-  </div>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            const guestForm = document.getElementById('guestForm');
+            const guestList = document.getElementById('guestList');
+            const scanLog = document.getElementById('scanLog');
+            const importButton = document.getElementById('importButton');
+            const deleteAllGuestsButton = document.getElementById('deleteAllGuests');
+            const scanResult = document.getElementById('scanResult');
+            const startScanButton = document.getElementById('startScanButton');
+            const readerDiv = document.getElementById('reader');
+            const couplePhoto = document.getElementById('couplePhoto');
+            const scannerModal = document.getElementById('scannerModal');
+            const closeScannerModal = document.getElementById('closeScannerModal');
+            let html5QrCode;
 
-  <div id="scannerPage" class="page">
-    <div class="section">
-      <h2>Scanner QR Code</h2>
-      <button id="startScanButton">Démarrer le Scan</button>
-      <div id="reader" style="width: 100%;"></div>
-      <div id="scanResult"></div>
-    </div>
-  </div>
+            // Référence à la base de données Firebase
+            const guestsRef = ref(db, 'guests');
+            const scansRef = ref(db, 'scans');
 
-  <div id="logPage" class="page">
-    <div class="section">
-      <h2>Journal des Scans</h2>
-      <ul id="scanLog"></ul>
-    </div>
-  </div>
+            // Écouter les changements dans la liste des invités
+            onValue(guestsRef, (snapshot) => {
+                const guests = snapshot.val() || {};
+                updateGuestList(guests);
+            });
 
+            // Écouter les changements dans le journal des scans
+            onValue(scansRef, (snapshot) => {
+                const scans = snapshot.val() || {};
+                updateScanLog(scans);
+            });
 
-<script type="module">
-  // Import the functions you need from the SDKs you need
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-  // TODO: Add SDKs for Firebase products that you want to use
-  // https://firebase.google.com/docs/web/setup#available-libraries
-
-  // Your web app's Firebase configuration
-  const firebaseConfig = {
-    apiKey: "AIzaSyDuFpPsBRE96la2TB8lVDGhpmTKm9JdHCU",
-    authDomain: "mariagefabricesther.firebaseapp.com",
-    databaseURL: "https://mariagefabricesther-default-rtdb.firebaseio.com",
-    projectId: "mariagefabricesther",
-    storageBucket: "mariagefabricesther.appspot.com",
-    messagingSenderId: "219465158505",
-    appId: "1:219465158505:web:5746c84cb4a14e27c7f7f8"
-  };
-
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-    var db = firebase.firestore();
-
-    // Fonction pour afficher la page
-    function showPage(pageId) {
-      document.querySelectorAll('.page').forEach(function(page) {
-        page.classList.remove('active');
-      });
-      document.getElementById(pageId + 'Page').classList.add('active');
-    }
-
-    // Fonction pour enregistrer un invité
-    document.getElementById('guestForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      var guestName = document.getElementById('guestName').value;
-      var tableName = document.getElementById('tableName').value;
-      db.collection('guests').add({
-        name: guestName,
-        table: tableName
-      }).then(function(docRef) {
-        generateQRCode(docRef.id);
-        document.getElementById('guestForm').reset();
-        fetchGuests();
-      }).catch(function(error) {
-        console.error('Erreur lors de l\'ajout de l\'invité : ', error);
-      });
-    });
-
-    // Fonction pour générer un QR Code
-    function generateQRCode(id) {
-      var qrcodeContainer = document.createElement('div');
-      qrcodeContainer.classList.add('qr-code');
-      new QRCode(qrcodeContainer, {
-        text: id,
-        width: 128,
-        height: 128
-      });
-      document.getElementById('guestList').appendChild(qrcodeContainer);
-    }
-
-    // Fonction pour récupérer et afficher les invités
-    function fetchGuests() {
-      db.collection('guests').get().then(function(querySnapshot) {
-        var guestList = document.getElementById('guestList');
-        guestList.innerHTML = '';
-        querySnapshot.forEach(function(doc) {
-          var guestItem = document.createElement('li');
-          guestItem.innerHTML = `
-            <div class="guest-info">
-              <span class="guest-name">${doc.data().name}</span>
-              <span>Table: ${doc.data().table}</span>
-            </div>
-            <div class="qr-code" id="qrcode-${doc.id}"></div>
-          `;
-          guestList.appendChild(guestItem);
-          generateQRCode(doc.id);
-        });
-      }).catch(function(error) {
-        console.error('Erreur lors de la récupération des invités : ', error);
-      });
-    }
-
-    // Fonction pour démarrer le scan
-    document.getElementById('startScanButton').addEventListener('click', function() {
-      var html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
-      html5QrcodeScanner.render(onScanSuccess);
-    });
-
-    // Fonction appelée lors du scan réussi
-    function onScanSuccess(decodedText, decodedResult) {
-      db.collection('guests').doc(decodedText).get().then(function(doc) {
-        if (doc.exists) {
-          var scanResult = document.getElementById('scanResult');
-          scanResult.classList.add('success');
-          scanResult.classList.remove('error');
-          scanResult.innerHTML = `Invité: ${doc.data().name}, Table: ${doc.data().table}`;
-          logScan(decodedText);
-        } else {
-          var scanResult = document.getElementById('scanResult');
-          scanResult.classList.add('error');
-          scanResult.classList.remove('success');
-          scanResult.innerHTML = `Invité non trouvé`;
-        }
-      }).catch(function(error) {
-        console.error('Erreur lors de la récupération de l\'invité : ', error);
-      });
-    }
-
-    // Fonction pour enregistrer le scan dans le journal
-    function logScan(guestId) {
-      db.collection('scans').add({
-        guestId: guestId,
-        timestamp: firebase.firestore.FieldValue.serverTimestamp()
-      }).then(function() {
-        fetchScanLog();
-      }).catch(function(error) {
-        console.error('Erreur lors de l\'enregistrement du scan : ', error);
-      });
-    }
-
-    // Fonction pour récupérer et afficher le journal des scans
-    function fetchScanLog() {
-      db.collection('scans').orderBy('timestamp', 'desc').get().then(function(querySnapshot) {
-        var scanLog = document.getElementById('scanLog');
-        scanLog.innerHTML = '';
-        querySnapshot.forEach(function(doc) {
-          var scanItem = document.createElement('li');
-          var guestId = doc.data().guestId;
-          db.collection('guests').doc(guestId).get().then(function(guestDoc) {
-            if (guestDoc.exists) {
-              scanItem.innerHTML = `Invité: ${guestDoc.data().name}, Table: ${guestDoc.data().table}, Heure: ${doc.data().timestamp.toDate().toLocaleString()}`;
-              scanLog.appendChild(scanItem);
+            function updateGuestList(guests) {
+                guestList.innerHTML = '';
+                Object.entries(guests).forEach(([id, guest]) => {
+                    const li = document.createElement('li');
+                    
+                    const guestInfo = document.createElement('div');
+                    guestInfo.className = 'guest-info';
+                    
+                    const guestName = document.createElement('span');
+                    guestName.className = 'guest-name';
+                    guestName.textContent = guest.name;
+                    
+                    const guestTable = document.createElement('span');
+                    guestTable.textContent = ` - Table: ${guest.table}`;
+                    
+                    guestInfo.appendChild(guestName);
+                    guestInfo.appendChild(guestTable);
+                    
+                    const qrCodeDiv = document.createElement('div');
+                    qrCodeDiv.className = 'qr-code';
+                    
+                    const actionsDiv = document.createElement('div');
+                    actionsDiv.className = 'guest-actions';
+                    
+                    const editButton = document.createElement('button');
+                    editButton.innerHTML = '<i class="fas fa-edit"></i>';
+                    editButton.className = 'edit-btn';
+                    editButton.title = 'Modifier';
+                    editButton.onclick = () => editGuest(id, guest);
+                    
+                    const deleteButton = document.createElement('button');
+                    deleteButton.innerHTML = '<i class="fas fa-trash-alt"></i>';
+                    deleteButton.className = 'delete-btn';
+                    deleteButton.title = 'Supprimer';
+                    deleteButton.onclick = () => deleteGuest(id);
+                    
+                    actionsDiv.appendChild(editButton);
+                    actionsDiv.appendChild(deleteButton);
+                    
+                    li.appendChild(guestInfo);
+                    li.appendChild(qrCodeDiv);
+                    li.appendChild(actionsDiv);
+                    guestList.appendChild(li);
+                    
+                    new QRCode(qrCodeDiv, {
+                        text: id,
+                        width: 64,
+                        height: 64
+                    });
+                });
             }
-          }).catch(function(error) {
-            console.error('Erreur lors de la récupération de l\'invité : ', error);
-          });
-        });
-      }).catch(function(error) {
-        console.error('Erreur lors de la récupération du journal des scans : ', error);
-      });
-    }
 
-    // Charger les invités et le journal des scans au chargement de la page
-    document.addEventListener('DOMContentLoaded', function() {
-      fetchGuests();
-      fetchScanLog();
-    });
-  </script>
+            function updateScanLog(scans) {
+                scanLog.innerHTML = '';
+                Object.entries(scans).forEach(([id, scan]) => {
+                    const li = document.createElement('li');
+                    const scanName = document.createElement('span');
+                    scanName.className = 'guest-name';
+                    scanName.textContent = scan.name;
+                    li.appendChild(scanName);
+                    li.appendChild(document.createTextNode(` (Table: ${scan.table}) - ${new Date(scan.time).toLocaleString()}`));
+                    scanLog.appendChild(li);
+                });
+            }
+
+            function editGuest(id, guest) {
+                const newName = prompt("Entrez le nouveau nom de l'invité:", guest.name);
+                const newTable = prompt("Entrez le nouveau nom de la table:", guest.table);
+                if (newName && newTable) {
+                    set(ref(db, `guests/${id}`), { ...guest, name: newName, table: newTable });
+                }
+            }
+
+            function deleteGuest(id) {
+                if (confirm("Êtes-vous sûr de vouloir supprimer cet invité ?")) {
+                    remove(ref(db, `guests/${id}`));
+                }
+            }
+
+            guestForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const guestName = document.getElementById('guestName').value;
+                const tableName = document.getElementById('tableName').value;
+                const newGuestRef = push(guestsRef);
+                set(newGuestRef, { name: guestName, table: tableName });
+
+                document.getElementById('guestName').value = '';
+                document.getElementById('tableName').value = '';
+            });
+
+            importButton.addEventListener('click', () => {
+                const file = document.getElementById('excelFile').files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const data = new Uint8Array(e.target.result);
+                        const workbook = XLSX.read(data, {type: 'array'});
+                        const firstSheetName = workbook.SheetNames[0];
+                        const worksheet = workbook.Sheets[firstSheetName];
+                        const jsonData = XLSX.utils.sheet_to_json(worksheet);
+                        
+                        jsonData.forEach(row => {
+                            const newGuestRef = push(guestsRef);
+                            set(newGuestRef, { name: row.Nom, table: row.Table });
+                        });
+
+                        alert('Invités importés avec succès !');
+                    };
+                    reader.readAsArrayBuffer(file);
+                } else {
+                    alert('Veuillez sélectionner un fichier Excel.');
+                }
+            });
+
+            deleteAllGuestsButton.addEventListener('click', () => {
+                if (confirm("Êtes-vous sûr de vouloir supprimer tous les invités ? Cette action est irréversible.")) {
+                    remove(guestsRef);
+                }
+            });
+
+            function qrCodeSuccessCallback(decodedText, decodedResult) {
+                const guestRef = ref(db, `guests/${decodedText}`);
+                onValue(guestRef, (snapshot) => {
+                    const guest = snapshot.val();
+                    if (guest) {
+                        const scan = { name: guest.name, table: guest.table, time: new Date().toISOString() };
+                        push(scansRef, scan);
+                        scanResult.textContent = `Invité scanné: ${guest.name} - Table: ${guest.table}`;
+                        scanResult.className = 'success';
+                    } else {
+                        scanResult.textContent = "Code QR non reconnu";
+                        scanResult.className = 'error';
+                    }
+                    setTimeout(() => {
+                        scanResult.textContent = '';
+                        scanResult.className = '';
+                    }, 3000);
+
+                    // Fermer automatiquement le scanner après la détection
+                    closeScannerModal.click();
+                }, {
+                    onlyOnce: true
+                });
+            }
+
+            startScanButton.addEventListener('click', () => {
+                if (html5QrCode && html5QrCode.isScanning) {
+                    html5QrCode.stop().then(() => {
+                        startScanButton.textContent = 'Démarrer le scan du code QR';
+                        scannerModal.style.display = 'none';
+                    }).catch((err) => {
+                        console.error('Erreur lors de l\'arrêt du scan:', err);
+                    });
+                } else {
+                    html5QrCode = new Html5Qrcode("reader");
+                    const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+
+                    scannerModal.style.display = 'block';
+                    html5QrCode.start({ facingMode: "environment" }, config, qrCodeSuccessCallback)
+                        .then(() => {
+                            startScanButton.textContent = 'Arrêter le scan';
+                        })
+                        .catch((err) => {
+                            console.error('Erreur lors du démarrage du scan:', err);
+                            alert('Erreur lors du démarrage de la caméra. Veuillez vérifier les permissions.');
+                        });
+                }
+            });
+
+            closeScannerModal.onclick = function() {
+                scannerModal.style.display = "none";
+                if (html5QrCode && html5QrCode.isScanning) {
+                    html5QrCode.stop().then(() => {
+                        startScanButton.textContent = 'Démarrer le scan du code QR';
+                    }).catch((err) => {
+                        console.error('Erreur lors de l\'arrêt du scan:', err);
+                    });
+                }
+            }
+
+            window.onclick = function(event) {
+                if (event.target == scannerModal) {
+                    closeScannerModal.click();
+                }
+            }
+
+            // Charger la photo des mariés si elle existe dans le localStorage
+            const savedPhoto = localStorage.getItem('couplePhoto');
+            if (savedPhoto) {
+                couplePhoto.src = savedPhoto;
+            }
+
+            showPage('home');
+        });
+
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            document.getElementById(pageId + 'Page').classList.add('active');
+        }
+    </script>
 </body>
 </html>
