@@ -220,14 +220,14 @@
 <body>
   <h1>Gestionnaire d'Invités de Mariage</h1>
   
-  <nav>
+<nav>
     <ul>
-      <li><a href="#" onclick="showPage('home')">Accueil</a></li>
-      <li><a href="#" onclick="showPage('guests')">Invités</a></li>
-      <li><a href="#" onclick="showPage('scanner')">Scanner</a></li>
-      <li><a href="#" onclick="showPage('log')">Journal</a></li>
+        <li><a href="#" onclick="showPage('home')">Accueil</a></li>
+        <li><a href="#" onclick="showPage('guests')">Invités</a></li>
+        <li><a href="#" onclick="showPage('scanner')">Scanner</a></li>
+        <li><a href="#" onclick="showPage('log')">Journal</a></li>
     </ul>
-  </nav>
+</nav>
 
   <div id="homePage" class="page active">
     <div class="section">
@@ -524,10 +524,16 @@
                 couplePhoto.src = savedPhoto;
             }
 
-            showPage('home');
         });
 
         function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            document.getElementById(pageId + 'Page').classList.add('active');
+        }
+        showPage('home');
+        window.showPage = function(pageId) {
             document.querySelectorAll('.page').forEach(page => {
                 page.classList.remove('active');
             });
