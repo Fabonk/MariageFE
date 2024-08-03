@@ -391,20 +391,20 @@
                 });
             }
 
-            function updateScanLog(scans) {
-                scanLog.innerHTML = '';
-                const scanCount = Object.keys(scans).length;
-                scanCountElement.textContent = `Nombre d'invités scannés : ${scanCount}`;
-                Object.entries(scans).forEach(([id, scan]) => {
-                    const li = document.createElement('li');
-                    const scanName = document.createElement('span');
-                    scanName.className = 'guest-name';
-                    scanName.textContent = scan.name;
-                    li.appendChild(scanName);
-                    li.appendChild(document.createTextNode(` (Table: ${scan.table}) - ${new Date(scan.time).toLocaleString()}`));
-                    scanLog.appendChild(li);
-                });
-            }
+    function updateScanLog(scans) {
+    scanLog.innerHTML = '';
+    const scanCount = Object.keys(scans).length;
+    scanCountElement.textContent = `Nombre d'invités scannés : ${scanCount}`;
+    Object.entries(scans).forEach(([id, scan]) => {
+        const li = document.createElement('li');
+        const scanName = document.createElement('span');
+        scanName.className = 'guest-name';
+        scanName.textContent = scan.name;
+        li.appendChild(scanName);
+        li.appendChild(document.createTextNode(` (Table: ${scan.table}) - ${new Date(scan.time).toLocaleString()}`));
+        scanLog.appendChild(li);
+    });
+}
 
             function editGuest(id, guest) {
                 const newName = prompt("Entrez le nouveau nom de l'invité:", guest.name);
@@ -461,31 +461,47 @@
                 }
             });
 
-            function qrCodeSuccessCallback(decodedText, decodedResult) {
-                const guestRef = ref(db, `guests/${decodedText}`);
-                onValue(guestRef, (snapshot) => {
-                    const guest = snapshot.val();
-                    if (guest) {
-                        const scan = { name: guest.name, table: guest.table, time: new Date().toISOString() };
-                        push(scansRef, scan);
-                        scanResult.textContent = `Invité scanné: ${guest.name} - Table: ${guest.table}`;
-                        scanResult.className = 'success';
-                    } else {
-                        scanResult.textContent = "Code QR non reconnu";
-                        scanResult.className = 'error';
-                    }
-                    setTimeout(() => {
-                        scanResult.textContent = '';
-                        scanResult.className = '';
-                    }, 3000);
+    function qrCodeSuccessCallback(decodedText, decodedResult) {
+    const guestRef = ref(db, `guests/${decodedText}`);
+    const scanRef = ref(db, `scans/${decodedText}`);
 
-                    // Fermer automatiquement le scanner après la détection
-                    closeScannerModal.click();
-                }, {
-                    onlyOnce: true
-                });
-            }
+    onValue(guestRef, (snapshot) => {
+        const guest = snapshot.val();
+        if (guest) {
+            // Vérifier si l'invité a déjà été scanné
+            onValue(scanRef, (scanSnapshot) => {
+                if (scanSnapshot.exists()) {
+                    scanResult.textContent = `${guest.name} a déjà été scanné.`;
+                    scanResult.className = 'error';
+                } else {
+                    const scan = { name: guest.name, table: guest.table, time: new Date().toISOString() };
+                    set(scanRef, scan);
+                    scanResult.textContent = `Invité scanné: ${guest.name} - Table: ${guest.table}`;
+                    scanResult.className = 'success';
+                }
+                setTimeout(() => {
+                    scanResult.textContent = '';
+                    scanResult.className = '';
+                }, 3000);
 
+                // Fermer automatiquement le scanner après la détection
+                closeScannerModal.click();
+            }, {
+                onlyOnce: true
+            });
+        } else {
+            scanResult.textContent = "Code QR non reconnu";
+            scanResult.className = 'error';
+            setTimeout(() => {
+                scanResult.textContent = '';
+                scanResult.className = '';
+            }, 3000);
+            closeScannerModal.click();
+        }
+    }, {
+        onlyOnce: true
+    });
+}
             startScanButton.addEventListener('click', () => {
                 if (html5QrCode && html5QrCode.isScanning) {
                     html5QrCode.stop().then(() => {
