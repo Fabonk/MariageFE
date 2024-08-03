@@ -216,7 +216,7 @@
     width: 100%;
     height: auto;
   }
-#loginPage {
+  #loginPage {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -235,6 +235,14 @@
 
 .hidden {
   display: none !important;
+}
+
+.miniature {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 50%;
+  margin-bottom: 20px;
 }
 </style>
 </head>
@@ -305,16 +313,17 @@
     </div>
   </div>
 
-<div id="loginPage" class="page active">
-  <div class="section">
-    <h2>Connexion</h2>
-    <form id="loginForm">
-      <input type="text" id="username" placeholder="Nom d'utilisateur" required>
-      <input type="password" id="password" placeholder="Mot de passe" required>
-      <button type="submit">Se connecter</button>
-    </form>
+  <div id="loginPage" class="page active">
+    <div class="section">
+      <img id="loginPhoto" src="Icone.jpg" alt="Photo des mariés" class="miniature">
+      <h2>Connexion</h2>
+      <form id="loginForm">
+        <input type="text" id="username" placeholder="Nom d'utilisateur" required>
+        <input type="password" id="password" placeholder="Mot de passe" required>
+        <button type="submit">Se connecter</button>
+      </form>
+    </div>
   </div>
-</div>
     <script type="module">
         // Import Firebase
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
@@ -357,22 +366,19 @@ function login(email, password) {
 
 // Fonction de déconnexion
 function logout() {
-  currentUser = null;
-  localStorage.removeItem('currentUser');
-  showLoginPage();
+  if (confirm("Êtes-vous sûr de vouloir vous déconnecter ?")) {
+    currentUser = null;
+    localStorage.removeItem('currentUser');
+    showLoginPage();
+  }
 }
 
 // Afficher les pages appropriées selon le rôle de l'utilisateur
 function showAppropriatePages() {
   document.getElementById('loginPage').classList.add('hidden');
-  document.querySelectorAll('.page').forEach(page => page.classList.add('hidden'));
+  document.querySelectorAll('.page').forEach(page => page.classList.remove('hidden'));
   
-  if (currentUser.role === 'admin') {
-    document.getElementById('homePage').classList.remove('hidden');
-    document.getElementById('guestsPage').classList.remove('hidden');
-    document.getElementById('scannerPage').classList.remove('hidden');
-    document.getElementById('logPage').classList.remove('hidden');
-  } else {
+  if (currentUser.role === 'user') {
     document.getElementById('scannerPage').classList.remove('hidden');
     document.getElementById('logPage').classList.remove('hidden');
   }
@@ -381,9 +387,22 @@ function showAppropriatePages() {
 }
 
 // Mettre à jour l'interface utilisateur en fonction du rôle
+
 function updateUIForRole() {
-  if (currentUser.role === 'user') {
-    document.querySelectorAll('.edit-btn, .delete-btn, #deleteAllGuests, #deleteAllScans').forEach(el => el.style.display = 'none');
+  const isAdmin = currentUser.role === 'admin';
+  
+  // Masquer/afficher les éléments en fonction du rôle
+  document.querySelectorAll('.edit-btn, .delete-btn, #deleteAllGuests, #deleteAllScans, #guestForm, #importButton').forEach(el => {
+    el.style.display = isAdmin ? '' : 'none';
+  });
+  document.querySelectorAll('#guestForm input').forEach(input => {
+    input.disabled = !isAdmin;
+  });
+
+  // Mettre à jour le texte du bouton de scan en fonction du rôle
+  const scanButton = document.getElementById('startScanButton');
+  if (scanButton) {
+    scanButton.textContent = isAdmin ? 'Démarrer le scan du code QR' : 'Scanner un invité';
   }
 }
 
@@ -408,6 +427,7 @@ function showLoginPage() {
             const scanCountElement = document.getElementById('scanCount');
             const deleteAllScansButton = document.getElementById('deleteAllScans');
             deleteAllScansButton.addEventListener('click', deleteAllScans);
+            const loginPhoto = document.getElementById('loginPhoto');
             let html5QrCode;
             const loginForm = document.getElementById('loginForm');
             loginForm.addEventListener('submit', (e) => {
@@ -420,6 +440,16 @@ function showLoginPage() {
            alert('Identifiants incorrects');
            }
            });
+           const observer = new MutationObserver((mutations) => {
+             mutations.forEach((mutation) => {
+             if (mutation.type === 'attributes' && mutation.attributeName === 'src') {
+             loginPhoto.src = couplePhoto.src;
+    }
+  });
+});
+
+observer.observe(couplePhoto, { attributes: true });
+
 
             // Référence à la base de données Firebase
             const guestsRef = ref(db, 'guests');
