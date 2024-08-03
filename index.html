@@ -269,13 +269,14 @@
     </div>
   </div>
 
-  <div id="logPage" class="page">
-    <div class="section">
-      <h2>Journal des Invités Scannés</h2>
-      <p id="scanCount">Nombre d'invités scannés : 0</p>
-      <ul id="scanLog"></ul>
-    </div>
+ <div id="logPage" class="page">
+  <div class="section">
+    <h2>Journal des Invités Scannés</h2>
+    <p id="scanCount">Nombre d'invités scannés : 0</p>
+    <button id="deleteAllScans" class="delete-all">Supprimer tous les scans</button>
+    <ul id="scanLog"></ul>
   </div>
+</div>
 
   <div id="scannerModal">
     <div id="scannerContent">
@@ -304,6 +305,7 @@
         // Initialiser Firebase
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
+        const scansRef = ref(db, 'scans');
 
         document.addEventListener('DOMContentLoaded', (event) => {
             const guestForm = document.getElementById('guestForm');
@@ -319,6 +321,8 @@
             const closeScannerModal = document.getElementById('closeScannerModal');
             const guestCountElement = document.getElementById('guestCount');
             const scanCountElement = document.getElementById('scanCount');
+            const deleteAllScansButton = document.getElementById('deleteAllScans');
+            deleteAllScansButton.addEventListener('click', deleteAllScans);
             let html5QrCode;
 
             // Référence à la base de données Firebase
@@ -332,6 +336,10 @@
             });
 
             // Écouter les changements dans le journal des scans
+            onValue(scansRef, (snapshot) => {
+                const scans = snapshot.val() || {};
+                updateScanLog(scans);
+            });
             onValue(scansRef, (snapshot) => {
                 const scans = snapshot.val() || {};
                 updateScanLog(scans);
@@ -390,21 +398,49 @@
                     });
                 });
             }
+function deleteScan(id) {
+    if (confirm("Êtes-vous sûr de vouloir supprimer ce scan ?")) {
+        remove(ref(db, `scans/${id}`));
+    }
+}
 
-    function updateScanLog(scans) {
+function deleteAllScans() {
+    if (confirm("Êtes-vous sûr de vouloir supprimer tous les scans ? Cette action est irréversible.")) {
+        remove(ref(db, 'scans'));
+    }
+}
+   function updateScanLog(scans) {
     scanLog.innerHTML = '';
     const scanCount = Object.keys(scans).length;
     scanCountElement.textContent = `Nombre d'invités scannés : ${scanCount}`;
     Object.entries(scans).forEach(([id, scan]) => {
         const li = document.createElement('li');
+        
+        const scanInfo = document.createElement('div');
+        scanInfo.className = 'scan-info';
+        
         const scanName = document.createElement('span');
         scanName.className = 'guest-name';
         scanName.textContent = scan.name;
-        li.appendChild(scanName);
-        li.appendChild(document.createTextNode(` (Table: ${scan.table}) - ${new Date(scan.time).toLocaleString()}`));
+        
+        const scanDetails = document.createElement('span');
+        scanDetails.textContent = ` (Table: ${scan.table}) - ${new Date(scan.time).toLocaleString()}`;
+        
+        scanInfo.appendChild(scanName);
+        scanInfo.appendChild(scanDetails);
+        
+        const deleteButton = document.createElement('button');
+        deleteButton.innerHTML = '<i class="fas fa-trash-alt"></i>';
+        deleteButton.className = 'delete-btn';
+        deleteButton.title = 'Supprimer';
+        deleteButton.onclick = () => deleteScan(id);
+        
+        li.appendChild(scanInfo);
+        li.appendChild(deleteButton);
         scanLog.appendChild(li);
     });
 }
+
 
             function editGuest(id, guest) {
                 const newName = prompt("Entrez le nouveau nom de l'invité:", guest.name);
