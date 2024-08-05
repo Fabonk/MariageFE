@@ -390,6 +390,15 @@ function logout() {
     showLoginPage();
 }
 
+function checkLoginState() {
+    const storedUser = localStorage.getItem('currentUser');
+    if (storedUser) {
+        currentUser = JSON.parse(storedUser);
+        showAppropriatePages();
+    } else {
+        showLoginPage();
+    }
+}
 // Afficher les pages appropriées selon le rôle de l'utilisateur
 function showAppropriatePages() {
     document.getElementById('loginPage').style.display = 'none';
@@ -427,8 +436,9 @@ function updateUIForRole() {
 // Afficher la page de connexion
 function showLoginPage() {
     document.querySelectorAll('.page').forEach(page => page.classList.add('hidden'));
+    document.getElementById('loginPage').classList.remove('hidden');
     document.getElementById('loginPage').style.display = 'flex';
-    document.getElementById('loginNavLink').style.display = '';
+    document.getElementById('loginNavLink').style.display = 'none';
     document.getElementById('logoutNavLink').style.display = 'none';
 }
 
@@ -490,6 +500,10 @@ document.addEventListener('DOMContentLoaded', (event) => {
         e.preventDefault();
         logout();
     });
+
+    // Appeler checkLoginState au lieu de la vérification directe
+    checkLoginState();
+
 
     const storedUser = localStorage.getItem('currentUser');
     if (storedUser) {
