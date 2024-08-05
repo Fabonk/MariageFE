@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestionnaire d'Invités de Mariage</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.4/html5-qrcode.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="shortcut icon" href="Icone.jpg" type="image/x-icon">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestionnaire d'Invités de Mariage</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.4/html5-qrcode.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="shortcut icon" href="Icone.jpg" type="image/x-icon">
    <style>
   @font-face {
     font-family: 'Century Gothic';
@@ -244,6 +244,24 @@
   border-radius: 50%;
   margin-bottom: 20px;
 }
+#loginPage {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  #loginForm {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    width: 300px;
+  }
 </style>
 </head>
 <body>
@@ -251,11 +269,13 @@
   
 <nav>
     <ul>
-        <li><a href="#" onclick="showPage('home')">Accueil</a></li>
-        <li><a href="#" onclick="showPage('guests')">Invités</a></li>
-        <li><a href="#" onclick="showPage('scanner')">Scanner</a></li>
-        <li><a href="#" onclick="showPage('log')">Journal</a></li>
-    </ul>
+      <li><a href="#" onclick="showPage('home')">Accueil</a></li>
+      <li><a href="#" onclick="showPage('guests')">Invités</a></li>
+      <li><a href="#" onclick="showPage('scanner')">Scanner</a></li>
+      <li><a href="#" onclick="showPage('log')">Journal</a></li>
+      <li><a href="#" id="loginNavLink">Connexion</a></li>
+      <li><a href="#" id="logoutNavLink" style="display: none;">Déconnexion</a></li>
+  </ul>
 </nav>
 
   <div id="homePage" class="page active">
@@ -313,7 +333,7 @@
     </div>
   </div>
 
-  <div id="loginPage" class="page active">
+  <div id="loginPage" class="page">
     <div class="section">
       <img id="loginPhoto" src="Icone.jpg" alt="Photo des mariés" class="miniature">
       <h2>Connexion</h2>
@@ -325,334 +345,340 @@
     </div>
   </div>
     <script type="module">
-        // Import Firebase
-        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-        import { getDatabase, ref, set, push, remove, onValue } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js";
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import { getDatabase, ref, set, push, remove, onValue } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js";
 
-        // Configuration Firebase
-        const firebaseConfig = {
-            apiKey: "AIzaSyDuFpPsBRE96la2TB8lVDGhpmTKm9JdHCU",
-            authDomain: "mariagefabricesther.firebaseapp.com",
-            databaseURL: "https://mariagefabricesther-default-rtdb.firebaseio.com",
-            projectId: "mariagefabricesther",
-            storageBucket: "mariagefabricesther.appspot.com",
-            messagingSenderId: "219465158505",
-            appId: "1:219465158505:web:5746c84cb4a14e27c7f7f8"
-        };
+// Configuration Firebase
+const firebaseConfig = {
+    apiKey: "AIzaSyDuFpPsBRE96la2TB8lVDGhpmTKm9JdHCU",
+    authDomain: "mariagefabricesther.firebaseapp.com",
+    databaseURL: "https://mariagefabricesther-default-rtdb.firebaseio.com",
+    projectId: "mariagefabricesther",
+    storageBucket: "mariagefabricesther.appspot.com",
+    messagingSenderId: "219465158505",
+    appId: "1:219465158505:web:5746c84cb4a14e27c7f7f8"
+};
 
-        // Initialiser Firebase
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-        const scansRef = ref(db, 'scans');
-        const auth = getAuth(app);
+// Initialiser Firebase
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const auth = getAuth(app);
 
-        const users = {
-            "admin@example.com": { role: "admin", password: "adminpass" },
-            "user@example.com": { role: "user", password: "userpass" }
-        };
-        let currentUser = null;
+const users = {
+    "admin@example.com": { role: "admin", password: "adminpass" },
+    "user@example.com": { role: "user", password: "userpass" }
+};
 
-        // Fonction de connexion
+let currentUser = null;
+
+// Fonction de connexion
 function login(email, password) {
-  if (users[email] && users[email].password === password) {
-    currentUser = { email, role: users[email].role };
-    localStorage.setItem('currentUser', JSON.stringify(currentUser));
-    showAppropriatePages();
-    return true;
-  }
-  return false;
+    if (users[email] && users[email].password === password) {
+        currentUser = { email, role: users[email].role };
+        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+        showAppropriatePages();
+        return true;
+    }
+    return false;
 }
 
 // Fonction de déconnexion
 function logout() {
-  if (confirm("Êtes-vous sûr de vouloir vous déconnecter ?")) {
     currentUser = null;
     localStorage.removeItem('currentUser');
     showLoginPage();
-  }
 }
 
 // Afficher les pages appropriées selon le rôle de l'utilisateur
 function showAppropriatePages() {
-  document.getElementById('loginPage').classList.add('hidden');
-  document.querySelectorAll('.page').forEach(page => page.classList.remove('hidden'));
-  
-  if (currentUser.role === 'user') {
-    document.getElementById('scannerPage').classList.remove('hidden');
-    document.getElementById('logPage').classList.remove('hidden');
-  }
-  
-  updateUIForRole();
+    document.getElementById('loginPage').style.display = 'none';
+    document.querySelectorAll('.page').forEach(page => page.classList.remove('hidden'));
+    document.getElementById('loginNavLink').style.display = 'none';
+    document.getElementById('logoutNavLink').style.display = '';
+    
+    if (currentUser.role === 'user') {
+        document.getElementById('scannerPage').classList.remove('hidden');
+        document.getElementById('logPage').classList.remove('hidden');
+    }
+    
+    updateUIForRole();
 }
 
 // Mettre à jour l'interface utilisateur en fonction du rôle
-
 function updateUIForRole() {
-  const isAdmin = currentUser.role === 'admin';
-  
-  // Masquer/afficher les éléments en fonction du rôle
-  document.querySelectorAll('.edit-btn, .delete-btn, #deleteAllGuests, #deleteAllScans, #guestForm, #importButton').forEach(el => {
-    el.style.display = isAdmin ? '' : 'none';
-  });
-  document.querySelectorAll('#guestForm input').forEach(input => {
-    input.disabled = !isAdmin;
-  });
+    const isAdmin = currentUser.role === 'admin';
+    
+    // Masquer/afficher les éléments en fonction du rôle
+    document.querySelectorAll('.edit-btn, .delete-btn, #deleteAllGuests, #deleteAllScans, #guestForm, #importButton').forEach(el => {
+        el.style.display = isAdmin ? '' : 'none';
+    });
+    document.querySelectorAll('#guestForm input').forEach(input => {
+        input.disabled = !isAdmin;
+    });
 
-  // Mettre à jour le texte du bouton de scan en fonction du rôle
-  const scanButton = document.getElementById('startScanButton');
-  if (scanButton) {
-    scanButton.textContent = isAdmin ? 'Démarrer le scan du code QR' : 'Scanner un invité';
-  }
+    // Mettre à jour le texte du bouton de scan en fonction du rôle
+    const scanButton = document.getElementById('startScanButton');
+    if (scanButton) {
+        scanButton.textContent = isAdmin ? 'Démarrer le scan du code QR' : 'Scanner un invité';
+    }
 }
 
 // Afficher la page de connexion
 function showLoginPage() {
-  document.querySelectorAll('.page').forEach(page => page.classList.add('hidden'));
-  document.getElementById('loginPage').classList.remove('hidden');
-}
-        document.addEventListener('DOMContentLoaded', (event) => {
-            const guestForm = document.getElementById('guestForm');
-            const guestList = document.getElementById('guestList');
-            const scanLog = document.getElementById('scanLog');
-            const importButton = document.getElementById('importButton');
-            const deleteAllGuestsButton = document.getElementById('deleteAllGuests');
-            const scanResult = document.getElementById('scanResult');
-            const startScanButton = document.getElementById('startScanButton');
-            const readerDiv = document.getElementById('reader');
-            const couplePhoto = document.getElementById('couplePhoto');
-            const scannerModal = document.getElementById('scannerModal');
-            const closeScannerModal = document.getElementById('closeScannerModal');
-            const guestCountElement = document.getElementById('guestCount');
-            const scanCountElement = document.getElementById('scanCount');
-            const deleteAllScansButton = document.getElementById('deleteAllScans');
-            deleteAllScansButton.addEventListener('click', deleteAllScans);
-            const loginPhoto = document.getElementById('loginPhoto');
-            let html5QrCode;
-            const loginForm = document.getElementById('loginForm');
-            loginForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const email = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            if (login(email, password)) {
-                showAppropriatePages();
-            } else {
-           alert('Identifiants incorrects');
-           }
-           });
-           const observer = new MutationObserver((mutations) => {
-             mutations.forEach((mutation) => {
-             if (mutation.type === 'attributes' && mutation.attributeName === 'src') {
-             loginPhoto.src = couplePhoto.src;
-    }
-  });
-});
-
-observer.observe(couplePhoto, { attributes: true });
-
-
-            // Référence à la base de données Firebase
-            const guestsRef = ref(db, 'guests');
-            const scansRef = ref(db, 'scans');
-
-            // Écouter les changements dans la liste des invités
-            onValue(guestsRef, (snapshot) => {
-                const guests = snapshot.val() || {};
-                updateGuestList(guests);
-            });
-           const storedUser = localStorage.getItem('currentUser');
-           if (storedUser) {
-             currentUser = JSON.parse(storedUser);
-           showAppropriatePages();
-            } else {
-            //showLoginPage();
-            }
-
-            const logoutButton = document.createElement('li');
-            logoutButton.innerHTML = '<a href="#" id="logoutLink">Déconnexion</a>';
-            document.querySelector('nav ul').appendChild(logoutButton);
-
-            document.getElementById('logoutLink').addEventListener('click', (e) => {
-            e.preventDefault();
-            logout();
-            });
-            // Écouter les changements dans le journal des scans
-            onValue(scansRef, (snapshot) => {
-                const scans = snapshot.val() || {};
-                updateScanLog(scans);
-            });
-            onValue(scansRef, (snapshot) => {
-                const scans = snapshot.val() || {};
-                updateScanLog(scans);
-            });
-
-            function updateGuestList(guests) {
-              guestList.innerHTML = '';
-                const guestCount = Object.keys(guests).length;
-                guestCountElement.textContent = `Nombre total d'invités : ${guestCount}`;
-                Object.entries(guests).forEach(([id, guest]) => {
-                    const li = document.createElement('li');
-                    
-                    const guestInfo = document.createElement('div');
-                    guestInfo.className = 'guest-info';
-                    
-                    const guestName = document.createElement('span');
-                    guestName.className = 'guest-name';
-                    guestName.textContent = guest.name;
-                    
-                    const guestTable = document.createElement('span');
-                    guestTable.textContent = ` - Table: ${guest.table}`;
-                    
-                    guestInfo.appendChild(guestName);
-                    guestInfo.appendChild(guestTable);
-                    
-                    const qrCodeDiv = document.createElement('div');
-                    qrCodeDiv.className = 'qr-code';
-                    
-                    const actionsDiv = document.createElement('div');
-                    actionsDiv.className = 'guest-actions';
-                    
-                    const editButton = document.createElement('button');
-                    editButton.innerHTML = '<i class="fas fa-edit"></i>';
-                    editButton.className = 'edit-btn';
-                    editButton.title = 'Modifier';
-                    editButton.onclick = () => editGuest(id, guest);
-                    
-                    const deleteButton = document.createElement('button');
-                    deleteButton.innerHTML = '<i class="fas fa-trash-alt"></i>';
-                    deleteButton.className = 'delete-btn';
-                    deleteButton.title = 'Supprimer';
-                    deleteButton.onclick = () => deleteGuest(id);
-                    
-                    actionsDiv.appendChild(editButton);
-                    actionsDiv.appendChild(deleteButton);
-                    
-                    li.appendChild(guestInfo);
-                    li.appendChild(qrCodeDiv);
-                    li.appendChild(actionsDiv);
-                    guestList.appendChild(li);
-                    
-                    new QRCode(qrCodeDiv, {
-                        text: id,
-                        width: 64,
-                        height: 64
-                    });
-                });
-            }
-function deleteScan(id) {
-    if (currentUser.role !== 'admin') {
-    alert("Vous n'avez pas l'autorisation de supprimer les scans.");
-    return;
-  }
-    if (confirm("Êtes-vous sûr de vouloir supprimer ce scan ?")) {
-        remove(ref(db, `scans/${id}`));
-    }
+    document.querySelectorAll('.page').forEach(page => page.classList.add('hidden'));
+    document.getElementById('loginPage').style.display = 'flex';
+    document.getElementById('loginNavLink').style.display = '';
+    document.getElementById('logoutNavLink').style.display = 'none';
 }
 
-function deleteAllScans() {
-    if (currentUser.role !== 'admin') {
-    alert("Vous n'avez pas l'autorisation de supprimer tous les scans.");
-    return;
-  }
-    if (confirm("Êtes-vous sûr de vouloir supprimer tous les scans ? Cette action est irréversible.")) {
-        remove(ref(db, 'scans'));
-    }
-}
-   function updateScanLog(scans) {
-    scanLog.innerHTML = '';
-    const scanCount = Object.keys(scans).length;
-    scanCountElement.textContent = `Nombre d'invités scannés : ${scanCount}`;
-    Object.entries(scans).forEach(([id, scan]) => {
-        const li = document.createElement('li');
-        
-        const scanInfo = document.createElement('div');
-        scanInfo.className = 'scan-info';
-        
-        const scanName = document.createElement('span');
-        scanName.className = 'guest-name';
-        scanName.textContent = scan.name;
-        
-        const scanDetails = document.createElement('span');
-        scanDetails.textContent = ` (Table: ${scan.table}) - ${new Date(scan.time).toLocaleString()}`;
-        
-        scanInfo.appendChild(scanName);
-        scanInfo.appendChild(scanDetails);
-        
-        const deleteButton = document.createElement('button');
-        deleteButton.innerHTML = '<i class="fas fa-trash-alt"></i>';
-        deleteButton.className = 'delete-btn';
-        deleteButton.title = 'Supprimer';
-        deleteButton.onclick = () => deleteScan(id);
-        
-        li.appendChild(scanInfo);
-        li.appendChild(deleteButton);
-        scanLog.appendChild(li);
+document.addEventListener('DOMContentLoaded', (event) => {
+    const guestForm = document.getElementById('guestForm');
+    const guestList = document.getElementById('guestList');
+    const scanLog = document.getElementById('scanLog');
+    const importButton = document.getElementById('importButton');
+    const deleteAllGuestsButton = document.getElementById('deleteAllGuests');
+    const scanResult = document.getElementById('scanResult');
+    const startScanButton = document.getElementById('startScanButton');
+    const readerDiv = document.getElementById('reader');
+    const couplePhoto = document.getElementById('couplePhoto');
+    const scannerModal = document.getElementById('scannerModal');
+    const closeScannerModal = document.getElementById('closeScannerModal');
+    const guestCountElement = document.getElementById('guestCount');
+    const scanCountElement = document.getElementById('scanCount');
+    const deleteAllScansButton = document.getElementById('deleteAllScans');
+    const loginPhoto = document.getElementById('loginPhoto');
+    const loginForm = document.getElementById('loginForm');
+    const loginNavLink = document.getElementById('loginNavLink');
+    const logoutNavLink = document.getElementById('logoutNavLink');
+    
+    let html5QrCode;
+
+    // Référence à la base de données Firebase
+    const guestsRef = ref(db, 'guests');
+    const scansRef = ref(db, 'scans');
+
+    // Écouter les changements dans la liste des invités
+    onValue(guestsRef, (snapshot) => {
+        const guests = snapshot.val() || {};
+        updateGuestList(guests);
     });
-}
 
+    // Écouter les changements dans le journal des scans
+    onValue(scansRef, (snapshot) => {
+        const scans = snapshot.val() || {};
+        updateScanLog(scans);
+    });
 
-            function editGuest(id, guest) {
-                if (currentUser.role !== 'admin') {
-                  alert("Vous n'avez pas l'autorisation de modifier les invités.");
-                  return;
-                }
-                const newName = prompt("Entrez le nouveau nom de l'invité:", guest.name);
-                const newTable = prompt("Entrez le nouveau nom de la table:", guest.table);
-                if (newName && newTable) {
-                    set(ref(db, `guests/${id}`), { ...guest, name: newName, table: newTable });
-                }
+    loginForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const email = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        if (login(email, password)) {
+            showAppropriatePages();
+        } else {
+            alert('Identifiants incorrects');
+        }
+    });
+
+    loginNavLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        showLoginPage();
+    });
+
+    logoutNavLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        logout();
+    });
+
+    const storedUser = localStorage.getItem('currentUser');
+    if (storedUser) {
+        currentUser = JSON.parse(storedUser);
+        showAppropriatePages();
+    } else {
+        showLoginPage();
+    }
+
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (mutation.type === 'attributes' && mutation.attributeName === 'src') {
+                loginPhoto.src = couplePhoto.src;
             }
+        });
+    });
 
-            function deleteGuest(id) {
-                if (currentUser.role !== 'admin') {
-                   alert("Vous n'avez pas l'autorisation de supprimer les invités.");
-                 return;
-                 }
-                if (confirm("Êtes-vous sûr de vouloir supprimer cet invité ?")) {
-                    remove(ref(db, `guests/${id}`));
-                }
-            }
+    observer.observe(couplePhoto, { attributes: true });
 
-            guestForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                const guestName = document.getElementById('guestName').value;
-                const tableName = document.getElementById('tableName').value;
-                const newGuestRef = push(guestsRef);
-                set(newGuestRef, { name: guestName, table: tableName });
+    deleteAllScansButton.addEventListener('click', deleteAllScans);
 
-                document.getElementById('guestName').value = '';
-                document.getElementById('tableName').value = '';
+    function updateGuestList(guests) {
+        guestList.innerHTML = '';
+        const guestCount = Object.keys(guests).length;
+        guestCountElement.textContent = `Nombre total d'invités : ${guestCount}`;
+        Object.entries(guests).forEach(([id, guest]) => {
+            const li = document.createElement('li');
+            
+            const guestInfo = document.createElement('div');
+            guestInfo.className = 'guest-info';
+            
+            const guestName = document.createElement('span');
+            guestName.className = 'guest-name';
+            guestName.textContent = guest.name;
+            
+            const guestTable = document.createElement('span');
+            guestTable.textContent = ` - Table: ${guest.table}`;
+            
+            guestInfo.appendChild(guestName);
+            guestInfo.appendChild(guestTable);
+            
+            const qrCodeDiv = document.createElement('div');
+            qrCodeDiv.className = 'qr-code';
+            
+            const actionsDiv = document.createElement('div');
+            actionsDiv.className = 'guest-actions';
+            
+            const editButton = document.createElement('button');
+            editButton.innerHTML = '<i class="fas fa-edit"></i>';
+            editButton.className = 'edit-btn';
+            editButton.title = 'Modifier';
+            editButton.onclick = () => editGuest(id, guest);
+            
+            const deleteButton = document.createElement('button');
+            deleteButton.innerHTML = '<i class="fas fa-trash-alt"></i>';
+            deleteButton.className = 'delete-btn';
+            deleteButton.title = 'Supprimer';
+            deleteButton.onclick = () => deleteGuest(id);
+            
+            actionsDiv.appendChild(editButton);
+            actionsDiv.appendChild(deleteButton);
+            
+            li.appendChild(guestInfo);
+            li.appendChild(qrCodeDiv);
+            li.appendChild(actionsDiv);
+            guestList.appendChild(li);
+            
+            new QRCode(qrCodeDiv, {
+                text: id,
+                width: 64,
+                height: 64
             });
+        });
+    }
 
-            importButton.addEventListener('click', () => {
-                const file = document.getElementById('excelFile').files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        const data = new Uint8Array(e.target.result);
-                        const workbook = XLSX.read(data, {type: 'array'});
-                        const firstSheetName = workbook.SheetNames[0];
-                        const worksheet = workbook.Sheets[firstSheetName];
-                        const jsonData = XLSX.utils.sheet_to_json(worksheet);
-                        
-                        jsonData.forEach(row => {
-                            const newGuestRef = push(guestsRef);
-                            set(newGuestRef, { name: row.Nom, table: row.Table });
-                        });
+    function deleteScan(id) {
+        if (currentUser.role !== 'admin') {
+            alert("Vous n'avez pas l'autorisation de supprimer les scans.");
+            return;
+        }
+        if (confirm("Êtes-vous sûr de vouloir supprimer ce scan ?")) {
+            remove(ref(db, `scans/${id}`));
+        }
+    }
 
-                        alert('Invités importés avec succès !');
-                    };
-                    reader.readAsArrayBuffer(file);
-                } else {
-                    alert('Veuillez sélectionner un fichier Excel.');
-                }
-            });
+    function deleteAllScans() {
+        if (currentUser.role !== 'admin') {
+            alert("Vous n'avez pas l'autorisation de supprimer tous les scans.");
+            return;
+        }
+        if (confirm("Êtes-vous sûr de vouloir supprimer tous les scans ? Cette action est irréversible.")) {
+            remove(ref(db, 'scans'));
+        }
+    }
 
-            deleteAllGuestsButton.addEventListener('click', () => {
-                if (confirm("Êtes-vous sûr de vouloir supprimer tous les invités ? Cette action est irréversible.")) {
-                    remove(guestsRef);
-                }
-            });
+    function updateScanLog(scans) {
+        scanLog.innerHTML = '';
+        const scanCount = Object.keys(scans).length;
+        scanCountElement.textContent = `Nombre d'invités scannés : ${scanCount}`;
+        Object.entries(scans).forEach(([id, scan]) => {
+            const li = document.createElement('li');
+            
+            const scanInfo = document.createElement('div');
+            scanInfo.className = 'scan-info';
+            
+            const scanName = document.createElement('span');
+            scanName.className = 'guest-name';
+            scanName.textContent = scan.name;
+            
+            const scanDetails = document.createElement('span');
+            scanDetails.textContent = ` (Table: ${scan.table}) - ${new Date(scan.time).toLocaleString()}`;
+            
+            scanInfo.appendChild(scanName);
+            scanInfo.appendChild(scanDetails);
+            
+            const deleteButton = document.createElement('button');
+            deleteButton.innerHTML = '<i class="fas fa-trash-alt"></i>';
+            deleteButton.className = 'delete-btn';
+            deleteButton.title = 'Supprimer';
+            deleteButton.onclick = () => deleteScan(id);
+            
+            li.appendChild(scanInfo);
+            li.appendChild(deleteButton);
+            scanLog.appendChild(li);
+        });
+    }
+
+    function editGuest(id, guest) {
+        if (currentUser.role !== 'admin') {
+            alert("Vous n'avez pas l'autorisation de modifier les invités.");
+            return;
+        }
+        const newName = prompt("Entrez le nouveau nom de l'invité:", guest.name);
+        const newTable = prompt("Entrez le nouveau nom de la table:", guest.table);
+        if (newName && newTable) {
+            set(ref(db, `guests/${id}`), { ...guest, name: newName, table: newTable });
+        }
+    }
+
+    function deleteGuest(id) {
+        if (currentUser.role !== 'admin') {
+            alert("Vous n'avez pas l'autorisation de supprimer les invités.");
+            return;
+        }
+        if (confirm("Êtes-vous sûr de vouloir supprimer cet invité ?")) {
+            remove(ref(db, `guests/${id}`));
+        }
+    }
+
+    guestForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const guestName = document.getElementById('guestName').value;
+        const tableName = document.getElementById('tableName').value;
+        const newGuestRef = push(guestsRef);
+        set(newGuestRef, { name: guestName, table: tableName });
+
+        document.getElementById('guestName').value = '';
+        document.getElementById('tableName').value = '';
+    });
+
+    importButton.addEventListener('click', () => {
+        const file = document.getElementById('excelFile').files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, {type: 'array'});
+                const firstSheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[firstSheetName];
+                const jsonData = XLSX.utils.sheet_to_json(worksheet);
+                
+                jsonData.forEach(row => {
+                    const newGuestRef = push(guestsRef);
+                    set(newGuestRef, { name: row.Nom, table: row.Table });
+                });
+
+                alert('Invités importés avec succès !');
+            };
+            reader.readAsArrayBuffer(file);
+        } else {
+            alert('Veuillez sélectionner un fichier Excel.');
+        }
+    });
+
+    deleteAllGuestsButton.addEventListener('click', () => {
+        if (confirm("Êtes-vous sûr de vouloir supprimer tous les invités ? Cette action est irréversible.")) {
+            remove(guestsRef);
+        }
+    });
 
     function qrCodeSuccessCallback(decodedText, decodedResult) {
     const guestRef = ref(db, `guests/${decodedText}`);
@@ -682,19 +708,10 @@ function deleteAllScans() {
             }, {
                 onlyOnce: true
             });
-        } else {
-            scanResult.textContent = "Code QR non reconnu";
-            scanResult.className = 'error';
-            setTimeout(() => {
-                scanResult.textContent = '';
-                scanResult.className = '';
-            }, 3000);
-            closeScannerModal.click();
         }
-    }, {
-        onlyOnce: true
     });
 }
+
             startScanButton.addEventListener('click', () => {
                 if (html5QrCode && html5QrCode.isScanning) {
                     html5QrCode.stop().then(() => {
