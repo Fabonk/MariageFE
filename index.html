@@ -262,6 +262,21 @@
     border-radius: 8px;
     width: 300px;
   }
+.icon-button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 1.5em;
+      color: var(--gold);
+    }
+
+    /* Ajoutez ces styles pour centrer le contenu de la page de connexion */
+    .login-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+    }
 </style>
 </head>
 <body>
@@ -273,8 +288,8 @@
       <li><a href="#" onclick="showPage('guests')">Invités</a></li>
       <li><a href="#" onclick="showPage('scanner')">Scanner</a></li>
       <li><a href="#" onclick="showPage('log')">Journal</a></li>
-      <li><a href="#" id="loginNavLink">Connexion</a></li>
-      <li><a href="#" id="logoutNavLink" style="display: none;">Déconnexion</a></li>
+      <li><button id="loginNavLink" class="icon-button" title="Connexion"><i class="fas fa-sign-in-alt"></i></button></li>
+      <li><button id="logoutNavLink" class="icon-button" title="Déconnexion" style="display: none;"><i class="fas fa-sign-out-alt"></i></button></li>
   </ul>
 </nav>
 
@@ -333,8 +348,8 @@
     </div>
   </div>
 
-  <div id="loginPage" class="page">
-    <div class="section">
+ <div id="loginPage" class="page">
+    <div class="login-container">
       <img id="loginPhoto" src="Icone.jpg" alt="Photo des mariés" class="miniature">
       <h2>Connexion</h2>
       <form id="loginForm">
