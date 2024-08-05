@@ -401,14 +401,21 @@ function checkLoginState() {
 }
 // Afficher les pages appropriées selon le rôle de l'utilisateur
 function showAppropriatePages() {
+    document.querySelectorAll('.page').forEach(page => {
+        page.style.display = 'none';
+    });
+    document.getElementById('homePage').style.display = 'block';
     document.getElementById('loginPage').style.display = 'none';
-    document.querySelectorAll('.page').forEach(page => page.classList.remove('hidden'));
     document.getElementById('loginNavLink').style.display = 'none';
-    document.getElementById('logoutNavLink').style.display = '';
+    document.getElementById('logoutNavLink').style.display = 'block';
     
     if (currentUser.role === 'user') {
-        document.getElementById('scannerPage').classList.remove('hidden');
-        document.getElementById('logPage').classList.remove('hidden');
+        document.getElementById('scannerPage').style.display = 'block';
+        document.getElementById('logPage').style.display = 'block';
+    } else if (currentUser.role === 'admin') {
+        document.getElementById('guestsPage').style.display = 'block';
+        document.getElementById('scannerPage').style.display = 'block';
+        document.getElementById('logPage').style.display = 'block';
     }
     
     updateUIForRole();
@@ -435,13 +442,13 @@ function updateUIForRole() {
 
 // Afficher la page de connexion
 function showLoginPage() {
-    document.querySelectorAll('.page').forEach(page => page.classList.add('hidden'));
-    document.getElementById('loginPage').classList.remove('hidden');
+    document.querySelectorAll('.page').forEach(page => {
+        page.style.display = 'none';
+    });
     document.getElementById('loginPage').style.display = 'flex';
     document.getElementById('loginNavLink').style.display = 'none';
     document.getElementById('logoutNavLink').style.display = 'none';
 }
-
 document.addEventListener('DOMContentLoaded', (event) => {
     const guestForm = document.getElementById('guestForm');
     const guestList = document.getElementById('guestList');
@@ -461,6 +468,12 @@ document.addEventListener('DOMContentLoaded', (event) => {
     const loginForm = document.getElementById('loginForm');
     const loginNavLink = document.getElementById('loginNavLink');
     const logoutNavLink = document.getElementById('logoutNavLink');
+    document.querySelectorAll('.page').forEach(page => {
+        page.style.display = 'none';
+    });
+
+    // Vérifiez l'état de connexion immédiatement
+    checkLoginState();
     
     let html5QrCode;
 
@@ -776,18 +789,19 @@ document.addEventListener('DOMContentLoaded', (event) => {
         });
 
         function showPage(pageId) {
-            document.querySelectorAll('.page').forEach(page => {
-                page.classList.remove('active');
-            });
-            document.getElementById(pageId + 'Page').classList.add('active');
-        }
-        showPage('home');
-        window.showPage = function(pageId) {
-            document.querySelectorAll('.page').forEach(page => {
-                page.classList.remove('active');
-            });
-            document.getElementById(pageId + 'Page').classList.add('active');
-        }
+    if (!currentUser) {
+        showLoginPage();
+        return;
+    }
+    
+    document.querySelectorAll('.page').forEach(page => {
+        page.style.display = 'none';
+    });
+    document.getElementById(pageId + 'Page').style.display = 'block';
+}
+
+// Assurez-vous que cette fonction est accessible globalement
+window.showPage = showPage;
     </script>
 </body>
 </html>
