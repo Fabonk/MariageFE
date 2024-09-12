@@ -70,7 +70,6 @@
   #guestList, #scanLog {
     list-style-type: none;
     padding: 0;
-  
   }
   #guestList li, #scanLog li {
     background-color: var(--light-grey);
@@ -80,6 +79,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    border: 2px solid var(--hooker-green); /* Ajout du bord vert */
   }
   #reader {
     width: 100%;
@@ -244,7 +244,7 @@
 </head>
 <body>
   <h1>Mariage de Fabrice et Esther</h1>
-  
+
 <nav>
     <ul>
         <li><a href="#" onclick="showPage('home')">Accueil</a></li>
@@ -268,7 +268,7 @@
       <form id="guestForm" method="GET" action="/register-guest">
         <input type="text" id="guestName" name="guestName" placeholder="Nom de l'invité" required>
         <input type="text" id="tableName" name="tableName" placeholder="Nom de la table" required>
-        <button type="submit">Enregistrer et Générer QR Code</button>
+        <button type="submit" id="save">Enregistrer et Générer QR Code</button>
       </form>
     </div>
 
@@ -342,8 +342,8 @@
         console.log("Connexion à Firestore établie");
 
         const users = {
-            "admin@example.com": { role: "admin", password: "adminpass" },
-            "user@example.com": { role: "user", password: "userpass" }
+            "admin": { role: "admin", password: "admin" },
+            "user": { role: "user", password: "user" }
         };
         let currentUser = null;
 
@@ -369,24 +369,30 @@
         function showAppropriatePages() {
             document.getElementById('loginPage').classList.add('hidden');
             document.querySelectorAll('.page').forEach(page => page.classList.add('hidden'));
-            
+
             if (currentUser.role === 'admin') {
                 document.getElementById('homePage').classList.remove('hidden');
                 document.getElementById('guestsPage').classList.remove('hidden');
                 document.getElementById('scannerPage').classList.remove('hidden');
                 document.getElementById('logPage').classList.remove('hidden');
+                document.getElementById('deleteAllScans').classList.remove('hidden');
+                document.getElementById('deleteAllGuests').classList.remove('hidden');
             } else {
+                document.getElementById('homePage').classList.remove('hidden');
+                document.getElementById('guestsPage').classList.remove('hidden');
                 document.getElementById('scannerPage').classList.remove('hidden');
                 document.getElementById('logPage').classList.remove('hidden');
             }
-            
+
             updateUIForRole();
         }
 
         // Mettre à jour l'interface utilisateur en fonction du rôle
         function updateUIForRole() {
             if (currentUser.role === 'user') {
-                document.querySelectorAll('.edit-btn, .delete-btn, #deleteAllGuests, #deleteAllScans').forEach(el => el.style.display = 'none');
+                document.getElementById('homePage').classList.remove('hidden');
+                document.getElementById('guestsPage').classList.remove('hidden');
+                document.querySelectorAll('.edit-btn, .delete-btn, #deleteAllGuests, #deleteAllScans, #save').forEach(el => el.style.display = 'none');
             }
         }
 
@@ -468,48 +474,57 @@
                 guestList.innerHTML = '';
                 const guestCount = Object.keys(guests).length;
                 guestCountElement.textContent = `Nombre total d'invités : ${guestCount}`;
-                Object.entries(guests).forEach(([id, guest]) => {
+
+                // Trier les invités par le nom de la table, puis par le nom de l'invité
+                const sortedGuests = Object.entries(guests).sort((a, b) => {
+                    if (a[1].table.localeCompare(b[1].table) === 0) {
+                        return a[1].name.localeCompare(b[1].name);
+                    }
+                    return a[1].table.localeCompare(b[1].table);
+                });
+
+                sortedGuests.forEach(([id, guest]) => {
                     const li = document.createElement('li');
-                    
+
                     const guestInfo = document.createElement('div');
                     guestInfo.className = 'guest-info';
-                    
+
                     const guestName = document.createElement('span');
                     guestName.className = 'guest-name';
                     guestName.textContent = guest.name;
-                    
+
                     const guestTable = document.createElement('span');
                     guestTable.textContent = ` - Table: ${guest.table}`;
-                    
+
                     guestInfo.appendChild(guestName);
                     guestInfo.appendChild(guestTable);
-                    
+
                     const qrCodeDiv = document.createElement('div');
                     qrCodeDiv.className = 'qr-code';
-                    
+
                     const actionsDiv = document.createElement('div');
                     actionsDiv.className = 'guest-actions';
-                    
+
                     const editButton = document.createElement('button');
                     editButton.innerHTML = '<i class="fas fa-edit"></i>';
                     editButton.className = 'edit-btn';
                     editButton.title = 'Modifier';
                     editButton.onclick = () => editGuest(id, guest);
-                    
+
                     const deleteButton = document.createElement('button');
                     deleteButton.innerHTML = '<i class="fas fa-trash-alt"></i>';
                     deleteButton.className = 'delete-btn';
                     deleteButton.title = 'Supprimer';
                     deleteButton.onclick = () => deleteGuest(id);
-                    
+
                     actionsDiv.appendChild(editButton);
                     actionsDiv.appendChild(deleteButton);
-                    
+
                     li.appendChild(guestInfo);
                     li.appendChild(qrCodeDiv);
                     li.appendChild(actionsDiv);
                     guestList.appendChild(li);
-                    
+
                     new QRCode(qrCodeDiv, {
                         text: id,
                         width: 64,
@@ -548,26 +563,26 @@
     scanCountElement.textContent = `Nombre d'invités scannés : ${scanCount}`;
     Object.entries(scans).forEach(([id, scan]) => {
         const li = document.createElement('li');
-        
+
         const scanInfo = document.createElement('div');
         scanInfo.className = 'scan-info';
-        
+
         const scanName = document.createElement('span');
         scanName.className = 'guest-name';
         scanName.textContent = scan.name;
-        
+
         const scanDetails = document.createElement('span');
         scanDetails.textContent = ` (Table: ${scan.table}) - ${new Date(scan.time).toLocaleString()}`;
-        
+
         scanInfo.appendChild(scanName);
         scanInfo.appendChild(scanDetails);
-        
+
         const deleteButton = document.createElement('button');
         deleteButton.innerHTML = '<i class="fas fa-trash-alt"></i>';
         deleteButton.className = 'delete-btn';
         deleteButton.title = 'Supprimer';
         deleteButton.onclick = () => deleteScan(id);
-        
+
         li.appendChild(scanInfo);
         li.appendChild(deleteButton);
         scanLog.appendChild(li);
@@ -616,7 +631,7 @@
                         const firstSheetName = workbook.SheetNames[0];
                         const worksheet = workbook.Sheets[firstSheetName];
                         const jsonData = XLSX.utils.sheet_to_json(worksheet);
-                        
+
                         jsonData.forEach(row => {
                             addDoc(guestsCollection, { name: row.Nom, table: row.Table });
                         });
