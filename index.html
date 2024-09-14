@@ -531,6 +531,10 @@
                         width: 64,
                         height: 64
                     });
+
+                    // Convertir le QR code en data URL et stocker dans Firestore
+                    const qrCodeImage = qrCodeDiv.querySelector('img').src;
+                    setDoc(doc(db, 'guests', id), { ...guest, qrCode: qrCodeImage });
                 });
             }
 
@@ -656,7 +660,7 @@
             });
 
             function qrCodeSuccessCallback(decodedText, decodedResult) {
-                const guestQuery = query(guestsCollection, where("id", "==", decodedText));
+                const guestQuery = query(guestsCollection, where("qrCode", "==", decodedText));
                 getDocs(guestQuery).then((querySnapshot) => {
                     if (!querySnapshot.empty) {
                         const guestDoc = querySnapshot.docs[0];
