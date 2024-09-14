@@ -10,315 +10,316 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <link rel="shortcut icon" href="fe.jpg" type="image/x-icon">
-   <style>
-  @font-face {
-    font-family: 'Century Gothic';
-    src: url('https://fonts.cdnfonts.com/css/century-gothic') format('woff2');
-  }
+    <style>
+        @font-face {
+            font-family: 'Century Gothic';
+            src: url('https://fonts.cdnfonts.com/css/century-gothic') format('woff2');
+        }
 
-  :root {
-    --hooker-green: #01613C;
-    --gold: #FFD700;
-    --light-gold: #FFF2B2;
-  }
-  body {
-    font-family: 'Roboto', sans-serif;
-    background-color: var(--light-gold);
-    color: var(--hooker-green);
-    line-height: 1.6;
-    padding: 20px;
-    max-width: 800px;
-    margin: 0 auto;
-  }
-  h1, h2 {
-    color: var(--hooker-green);
-    text-align: center;
-  }
-  .section {
-    background-color: #fff;
-    border-radius: 8px;
-    padding: 20px;
-    margin-bottom: 20px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    border-color: #014d30;
-    border-width: 20px;
-  }
-  input, button {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 10px;
-    border: 1px solid var(--hooker-green);
-    border-radius: 4px;
-    font-family: 'Roboto', sans-serif;
-    box-sizing: border-box;
-    height: 40px;
-  }
-  button {
-    background-color: var(--hooker-green);
-    color: var(--gold);
-    border: none;
-    cursor: pointer;
-    transition: background-color 0.3s;
-  }
-  button:hover {
-    background-color: #014d30;
-  }
-  #qrcode, .qr-code {
-    text-align: center;
-    margin-top: 20px;
-  }
-  #guestList, #scanLog {
-    list-style-type: none;
-    padding: 0;
-  }
-  #guestList li, #scanLog li {
-    background-color: var(--light-grey);
-    margin-bottom: 10px;
-    padding: 10px;
-    border-radius: 4px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border: 2px solid var(--hooker-green); /* Ajout du bord vert */
-  }
-  #reader {
-    width: 100%;
-    max-width: 500px;
-    margin: 0 auto;
-  }
-  .guest-info {
-    flex-grow: 1;
-  }
-  .guest-name {
-    font-family: 'Century Gothic', sans-serif;
-    font-weight: bold;
-    font-size: 1.2em;
-    color: var(--hooker-green);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-  }
-  .qr-code {
-    margin-left: 10px;
-  }
-  nav {
-    background-color: var(--hooker-green);
-    padding: 10px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-  }
-  nav ul {
-    list-style-type: none;
-    padding: 0;
-    display: flex;
-    justify-content: space-around;
-  }
-  nav ul li a {
-    color: var(--gold);
-    text-decoration: none;
-    font-weight: bold;
-  }
-  .page {
-    display: none;
-  }
-  .active {
-    display: block;
-  }
-  .guest-actions {
-    display: flex;
-    gap: 5px;
-  }
-  .guest-actions button {
-    padding: 5px;
-    font-size: 0.8em;
-    width: auto;
-  }
-  .delete-all {
-    background-color: #9e1a1a;
-  }
-  .delete-all:hover {
-    background-color: #7a1414;
-  }
-  .edit-btn, .delete-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 1.2em;
-  }
-  .edit-btn {
-    color: var(--hooker-green);
-  }
-  .delete-btn {
-    color: #9e1a1a;
-  }
-  #scanResult {
-    margin-top: 20px;
-    padding: 10px;
-    border-radius: 4px;
-    text-align: center;
-    font-weight: bold;
-  }
-  .success {
-    background-color: #4CAF50;
-    color: white;
-  }
-  .error {
-    background-color: #f44336;
-    color: white;
-  }
-  #startScanButton {
-    background-color: var(--gold);
-    color: var(--hooker-green);
-    font-weight: bold;
-    margin-bottom: 20px;
-  }
-  #startScanButton:hover {
-    background-color: #e6c300;
-  }
-  #couplePhoto {
-    max-width: 100%;
-    height: auto;
-    display: block;
-    margin: 20px auto;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-  }
+        :root {
+            --hooker-green: #01613C;
+            --gold: #FFD700;
+            --light-gold: #FFF2B2;
+        }
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--light-gold);
+            color: var(--hooker-green);
+            line-height: 1.6;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1, h2 {
+            color: var(--hooker-green);
+            text-align: center;
+        }
+        .section {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-color: #014d30;
+            border-width: 20px;
+        }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid var(--hooker-green);
+            border-radius: 4px;
+            font-family: 'Roboto', sans-serif;
+            box-sizing: border-box;
+            height: 40px;
+        }
+        button {
+            background-color: var(--hooker-green);
+            color: var(--gold);
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #014d30;
+        }
+        #qrcode, .qr-code {
+            text-align: center;
+            margin-top: 20px;
+        }
+        #guestList, #scanLog {
+            list-style-type: none;
+            padding: 0;
+        }
+        #guestList li, #scanLog li {
+            background-color: var(--light-grey);
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 2px solid var(--hooker-green); /* Ajout du bord vert */
+        }
+        #reader {
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        .guest-info {
+            flex-grow: 1;
+        }
+        .guest-name {
+            font-family: 'Century Gothic', sans-serif;
+            font-weight: bold;
+            font-size: 1.2em;
+            color: var(--hooker-green);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .qr-code {
+            margin-left: 10px;
+        }
+        nav {
+            background-color: var(--hooker-green);
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        nav ul {
+            list-style-type: none;
+            padding: 0;
+            display: flex;
+            justify-content: space-around;
+        }
+        nav ul li a {
+            color: var(--gold);
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .page {
+            display: none;
+        }
+        .active {
+            display: block;
+        }
+        .guest-actions {
+            display: flex;
+            gap: 5px;
+        }
+        .guest-actions button {
+            padding: 5px;
+            font-size: 0.8em;
+            width: auto;
+        }
+        .delete-all {
+            background-color: #9e1a1a;
+        }
+        .delete-all:hover {
+            background-color: #7a1414;
+        }
+        .edit-btn, .delete-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.2em;
+        }
+        .edit-btn {
+            color: var(--hooker-green);
+        }
+        .delete-btn {
+            color: #9e1a1a;
+        }
+        #scanResult {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 4px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .success {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .error {
+            background-color: #f44336;
+            color: white;
+        }
+        #startScanButton {
+            background-color: var(--gold);
+            color: var(--hooker-green);
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        #startScanButton:hover {
+            background-color: #e6c300;
+        }
+        #couplePhoto {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 20px auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
 
-  #scannerModal {
-    display: none;
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: rgba(0,0,0,0.8);
-  }
-  #scannerContent {
-    background-color: #fefefe;
-    margin: 10% auto;
-    padding: 20px;
-    border: 1px solid #888;
-    width: 80%;
-    max-width: 500px;
-    border-radius: 8px;
-  }
-  #closeScannerModal {
-    color: #aaa;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
-    cursor: pointer;
-  }
-  #closeScannerModal:hover,
-  #closeScannerModal:focus {
-    color: #000;
-    text-decoration: none;
-    cursor: pointer;
-  }
-  #reader video {
-    width: 100%;
-    height: auto;
-  }
-#loginPage {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-}
+        #scannerModal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.8);
+        }
+        #scannerContent {
+            background-color: #fefefe;
+            margin: 10% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 8px;
+        }
+        #closeScannerModal {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        #closeScannerModal:hover,
+        #closeScannerModal:focus {
+            color: #000;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        #reader video {
+            width: 100%;
+            height: auto;
+        }
+        #loginPage {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
 
-#loginForm {
-  display: flex;
-  flex-direction: column;
-  width: 300px;
-}
+        #loginForm {
+            display: flex;
+            flex-direction: column;
+            width: 300px;
+        }
 
-#loginForm input, #loginForm button {
-  margin-bottom: 10px;
-}
+        #loginForm input, #loginForm button {
+            margin-bottom: 10px;
+        }
 
-.hidden {
-  display: none !important;
-}
-</style>
+        .hidden {
+            display: none !important;
+        }
+    </style>
 </head>
 <body>
-  <h1>Mariage de Fabrice et Esther</h1>
+    <h1>Mariage de Fabrice et Esther</h1>
 
-<nav>
-    <ul>
-        <li><a href="#" onclick="showPage('home')">Accueil</a></li>
-        <li><a href="#" onclick="showPage('guests')">Invités</a></li>
-        <li><a href="#" onclick="showPage('scanner')">Scanner</a></li>
-        <li><a href="#" onclick="showPage('log')">Journal</a></li>
-    </ul>
-</nav>
+    <nav>
+        <ul>
+            <li><a href="#" onclick="showPage('home')">Accueil</a></li>
+            <li><a href="#" onclick="showPage('guests')">Invités</a></li>
+            <li><a href="#" onclick="showPage('scanner')">Scanner</a></li>
+            <li><a href="#" onclick="showPage('log')">Journal</a></li>
+        </ul>
+    </nav>
 
-  <div id="homePage" class="page active">
-    <div class="section">
-      <h2>Bienvenue à notre Mariage</h2>
-      <img id="couplePhoto" src="fe.jpg" alt="Photo des mariés">
-    </div>
-  </div>
-
-  <div id="guestsPage" class="page">
-    <div class="section">
-      <h2>Enregistrer un Invité</h2>
-      <p id="guestCount">Nombre total d'invités : 0</p>
-      <form id="guestForm" method="GET" action="/register-guest">
-        <input type="text" id="guestName" name="guestName" placeholder="Nom de l'invité" required>
-        <input type="text" id="tableName" name="tableName" placeholder="Nom de la table" required>
-        <button type="submit" id="save">Enregistrer et Générer QR Code</button>
-      </form>
+    <div id="homePage" class="page active">
+        <div class="section">
+            <h2>Bienvenue à notre Mariage</h2>
+            <img id="couplePhoto" src="fe.jpg" alt="Photo des mariés">
+        </div>
     </div>
 
-    <div class="section">
-      <h2>Importer la Liste des Invités</h2>
-      <input type="file" id="excelFile" accept=".xlsx, .xls" />
-      <button id="importButton">Importer</button>
+    <div id="guestsPage" class="page">
+        <div class="section">
+            <h2>Enregistrer un Invité</h2>
+            <p id="guestCount">Nombre total d'invités : 0</p>
+            <form id="guestForm" method="GET" action="/register-guest">
+                <input type="text" id="guestName" name="guestName" placeholder="Nom de l'invité" required>
+                <input type="text" id="tableName" name="tableName" placeholder="Nom de la table" required>
+                <button type="submit" id="save">Enregistrer et Générer QR Code</button>
+            </form>
+        </div>
+
+        <div class="section">
+            <h2>Importer la Liste des Invités</h2>
+            <input type="file" id="excelFile" accept=".xlsx, .xls" />
+            <button id="importButton">Importer</button>
+        </div>
+
+        <div class="section" id="list">
+            <h2>Liste des Invités</h2>
+            <button id="deleteAllGuests" class="delete-all">Supprimer tous les invités</button>
+            <ul id="guestList"></ul>
+        </div>
     </div>
 
-    <div class="section" id="list">
-      <h2>Liste des Invités</h2>
-      <button id="deleteAllGuests" class="delete-all">Supprimer tous les invités</button>
-      <ul id="guestList"></ul>
+    <div id="scannerPage" class="page">
+        <div class="section">
+            <h2>Scanner un Code QR</h2>
+            <button id="startScanButton">Démarrer le scan du code QR</button>
+            <div id="scanResult"></div>
+        </div>
     </div>
-  </div>
 
-  <div id="scannerPage" class="page">
-    <div class="section">
-      <h2>Scanner un Code QR</h2>
-      <button id="startScanButton">Démarrer le scan du code QR</button>
-      <div id="scanResult"></div>
+    <div id="logPage" class="page">
+        <div class="section">
+            <h2>Journal des Invités Scannés</h2>
+            <p id="scanCount">Nombre d'invités scannés : 0</p>
+            <button id="deleteAllScans" class="delete-all">Supprimer tous les scans</button>
+            <ul id="scanLog"></ul>
+        </div>
     </div>
-  </div>
 
- <div id="logPage" class="page">
-  <div class="section">
-    <h2>Journal des Invités Scannés</h2>
-    <p id="scanCount">Nombre d'invités scannés : 0</p>
-    <button id="deleteAllScans" class="delete-all">Supprimer tous les scans</button>
-    <ul id="scanLog"></ul>
-  </div>
-</div>
-
-  <div id="scannerModal">
-    <div id="scannerContent">
-      <span id="closeScannerModal">&times;</span>
-      <div id="reader"></div>
+    <div id="scannerModal">
+        <div id="scannerContent">
+            <span id="closeScannerModal">&times;</span>
+            <div id="reader"></div>
+        </div>
     </div>
-  </div>
 
-<div id="loginPage" class="page active">
-  <div class="section">
-    <h2>Connexion</h2>
-    <form id="loginForm">
-      <input type="text" id="username" placeholder="Nom d'utilisateur" required>
-      <input type="password" id="password" placeholder="Mot de passe" required>
-      <button type="submit">Se connecter</button>
-    </form>
-  </div>
-</div>
+    <div id="loginPage" class="page active">
+        <div class="section">
+            <h2>Connexion</h2>
+            <form id="loginForm">
+                <input type="text" id="username" placeholder="Nom d'utilisateur" required>
+                <input type="password" id="password" placeholder="Mot de passe" required>
+                <button type="submit">Se connecter</button>
+            </form>
+        </div>
+    </div>
+
     <script type="module">
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
@@ -327,13 +328,13 @@
         // Configuration Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyDuFpPsBRE96la2TB8lVDGhpmTKm9JdHCU",
-    authDomain: "mariagefabricesther.firebaseapp.com",
-    databaseURL: "https://mariagefabricesther-default-rtdb.firebaseio.com",
-    projectId: "mariagefabricesther",
-    storageBucket: "mariagefabricesther.appspot.com",
-    messagingSenderId: "219465158505",
-    appId: "1:219465158505:web:5746c84cb4a14e27c7f7f8"
-  };
+            authDomain: "mariagefabricesther.firebaseapp.com",
+            databaseURL: "https://mariagefabricesther-default-rtdb.firebaseio.com",
+            projectId: "mariagefabricesther",
+            storageBucket: "mariagefabricesther.appspot.com",
+            messagingSenderId: "219465158505",
+            appId: "1:219465158505:web:5746c84cb4a14e27c7f7f8"
+        };
 
         // Initialiser Firebase
         const app = initializeApp(firebaseConfig);
@@ -526,7 +527,7 @@
                     guestList.appendChild(li);
 
                     new QRCode(qrCodeDiv, {
-                        text: id,
+                        text: id, // Utilisez l'identifiant unique de l'invité
                         width: 64,
                         height: 64
                     });
@@ -559,34 +560,34 @@
 
             function updateScanLog(scans) {
                 scanLog.innerHTML = '';
-    const scanCount = Object.keys(scans).length;
-    scanCountElement.textContent = `Nombre d'invités scannés : ${scanCount}`;
-    Object.entries(scans).forEach(([id, scan]) => {
-        const li = document.createElement('li');
+                const scanCount = Object.keys(scans).length;
+                scanCountElement.textContent = `Nombre d'invités scannés : ${scanCount}`;
+                Object.entries(scans).forEach(([id, scan]) => {
+                    const li = document.createElement('li');
 
-        const scanInfo = document.createElement('div');
-        scanInfo.className = 'scan-info';
+                    const scanInfo = document.createElement('div');
+                    scanInfo.className = 'scan-info';
 
-        const scanName = document.createElement('span');
-        scanName.className = 'guest-name';
-        scanName.textContent = scan.name;
+                    const scanName = document.createElement('span');
+                    scanName.className = 'guest-name';
+                    scanName.textContent = scan.name;
 
-        const scanDetails = document.createElement('span');
-        scanDetails.textContent = ` (Table: ${scan.table}) - ${new Date(scan.time).toLocaleString()}`;
+                    const scanDetails = document.createElement('span');
+                    scanDetails.textContent = ` (Table: ${scan.table}) - ${new Date(scan.time).toLocaleString()}`;
 
-        scanInfo.appendChild(scanName);
-        scanInfo.appendChild(scanDetails);
+                    scanInfo.appendChild(scanName);
+                    scanInfo.appendChild(scanDetails);
 
-        const deleteButton = document.createElement('button');
-        deleteButton.innerHTML = '<i class="fas fa-trash-alt"></i>';
-        deleteButton.className = 'delete-btn';
-        deleteButton.title = 'Supprimer';
-        deleteButton.onclick = () => deleteScan(id);
+                    const deleteButton = document.createElement('button');
+                    deleteButton.innerHTML = '<i class="fas fa-trash-alt"></i>';
+                    deleteButton.className = 'delete-btn';
+                    deleteButton.title = 'Supprimer';
+                    deleteButton.onclick = () => deleteScan(id);
 
-        li.appendChild(scanInfo);
-        li.appendChild(deleteButton);
-        scanLog.appendChild(li);
-    });
+                    li.appendChild(scanInfo);
+                    li.appendChild(deleteButton);
+                    scanLog.appendChild(li);
+                });
             }
 
             function editGuest(id, guest) {
