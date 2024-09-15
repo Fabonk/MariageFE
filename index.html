@@ -240,6 +240,24 @@
         .hidden {
             display: none !important;
         }
+
+        /* Style pour la barre de progression */
+        #progressBar {
+            width: 100%;
+            background-color: #f3f3f3;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        #progressBar div {
+            width: 0;
+            height: 30px;
+            background-color: var(--hooker-green);
+            border-radius: 5px;
+            text-align: center;
+            line-height: 30px;
+            color: white;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -276,6 +294,9 @@
             <h2>Importer la Liste des Invités</h2>
             <input type="file" id="excelFile" accept=".xlsx, .xls" />
             <button id="importButton">Importer</button>
+            <div id="progressBar">
+                <div id="progressBarFill"></div>
+            </div>
         </div>
 
         <div class="section" id="list">
@@ -326,13 +347,13 @@
 
         // Configuration Firebase
         const firebaseConfig = {
-    apiKey: "AIzaSyBHklQ17KsRvj1qHBMu7S86GgnTv1L4jMw",
-    authDomain: "mariagefe-4f000.firebaseapp.com",
-    projectId: "mariagefe-4f000",
-    storageBucket: "mariagefe-4f000.appspot.com",
-    messagingSenderId: "1010839265340",
-    appId: "1:1010839265340:web:4d7fc6cb0fde14670ae339"
-  };
+            apiKey: "AIzaSyCS1Btrs-POjj5hLEoqVzSwOC9NbFXcwq0",
+            authDomain: "femariage-a7354.firebaseapp.com",
+            projectId: "femariage-a7354",
+            storageBucket: "femariage-a7354.appspot.com",
+            messagingSenderId: "759483801731",
+            appId: "1:759483801731:web:0782f71e2f7fb9db013bb6"
+        };
 
         // Initialiser Firebase
         const app = initializeApp(firebaseConfig);
@@ -529,7 +550,8 @@
                     new QRCode(qrCodeDiv, {
                         text: qrCodeData,
                         width: 64,
-                        height: 64
+                        height: 64,
+                        correctLevel: QRCode.CorrectLevel.L // Niveau de correction bas pour un code QR simple
                     });
 
                     // Convertir le QR code en data URL et stocker dans Firestore
@@ -627,27 +649,52 @@
             });
 
             importButton.addEventListener('click', () => {
-                const file = document.getElementById('excelFile').files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        const data = new Uint8Array(e.target.result);
-                        const workbook = XLSX.read(data, {type: 'array'});
-                        const firstSheetName = workbook.SheetNames[0];
-                        const worksheet = workbook.Sheets[firstSheetName];
-                        const jsonData = XLSX.utils.sheet_to_json(worksheet);
+    const file = document.getElementById('excelFile').files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, {type: 'array'});
+            const firstSheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[firstSheetName];
+            const jsonData = XLSX.utils.sheet_to_json(worksheet);
 
-                        jsonData.forEach(row => {
-                            addDoc(guestsCollection, { name: row.Nom, table: row.Table });
+            const totalRows = jsonData.length;
+            let importedRows = 0;
+
+            jsonData.forEach(row => {
+                if (row.Nom && row.Table) {
+                    addDoc(guestsCollection, { name: row.Nom, table: row.Table })
+                        .then(() => {
+                            importedRows++;
+                            updateProgressBar(importedRows, totalRows);
+                        })
+                        .catch(error => {
+                            console.error('Erreur lors de l\'ajout de l\'invité:', error);
                         });
-
-                        alert('Invités importés avec succès !');
-                    };
-                    reader.readAsArrayBuffer(file);
                 } else {
-                    alert('Veuillez sélectionner un fichier Excel.');
+                    console.warn('Ligne invalide:', row);
                 }
             });
+
+            alert('Invités importés avec succès !');
+        };
+        reader.onerror = function(e) {
+            console.error('Erreur lors de la lecture du fichier:', e);
+            alert('Erreur lors de la lecture du fichier Excel.');
+        };
+        reader.readAsArrayBuffer(file);
+    } else {
+        alert('Veuillez sélectionner un fichier Excel.');
+    }
+});
+
+            function updateProgressBar(importedRows, totalRows) {
+                const progressBarFill = document.getElementById('progressBarFill');
+                const progressPercentage = (importedRows / totalRows) * 100;
+                progressBarFill.style.width = `${progressPercentage}%`;
+                progressBarFill.textContent = `${Math.round(progressPercentage)}%`;
+            }
 
             deleteAllGuestsButton.addEventListener('click', () => {
                 if (confirm("Êtes-vous sûr de vouloir supprimer tous les invités ? Cette action est irréversible.")) {
@@ -662,10 +709,12 @@
             function qrCodeSuccessCallback(decodedText, decodedResult) {
                 try {
                     const guestData = JSON.parse(decodedText);
-                    const scan = { id: guestData.id, name: guestData.name, table: guestData.table, time: new Date().toISOString() };
+                    const scan = { name: guestData.name, table: guestData.table, time: new Date().toISOString() };
                     addDoc(guestScansCollection, scan);
+                    alert('Invité scanné avec succès !');
                 } catch (error) {
                     console.error('Erreur lors du décodage du QR Code:', error);
+                    alert('Erreur lors du décodage du QR Code.');
                 }
             }
 
