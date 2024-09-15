@@ -321,20 +321,19 @@
     </div>
 
     <script type="module">
-        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-        import { getFirestore, collection, doc, setDoc, addDoc, deleteDoc, onSnapshot, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+        import { getFirestore, collection, doc, setDoc, addDoc, deleteDoc, onSnapshot, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
 
         // Configuration Firebase
         const firebaseConfig = {
-            apiKey: "AIzaSyDuFpPsBRE96la2TB8lVDGhpmTKm9JdHCU",
-            authDomain: "mariagefabricesther.firebaseapp.com",
-            databaseURL: "https://mariagefabricesther-default-rtdb.firebaseio.com",
-            projectId: "mariagefabricesther",
-            storageBucket: "mariagefabricesther.appspot.com",
-            messagingSenderId: "219465158505",
-            appId: "1:219465158505:web:5746c84cb4a14e27c7f7f8"
-        };
+    apiKey: "AIzaSyBHklQ17KsRvj1qHBMu7S86GgnTv1L4jMw",
+    authDomain: "mariagefe-4f000.firebaseapp.com",
+    projectId: "mariagefe-4f000",
+    storageBucket: "mariagefe-4f000.appspot.com",
+    messagingSenderId: "1010839265340",
+    appId: "1:1010839265340:web:4d7fc6cb0fde14670ae339"
+  };
 
         // Initialiser Firebase
         const app = initializeApp(firebaseConfig);
@@ -526,8 +525,10 @@
                     li.appendChild(actionsDiv);
                     guestList.appendChild(li);
 
+                    // Générer le code QR avec les informations de l'invité et de la table
+                    const qrCodeData = JSON.stringify({ id, name: guest.name, table: guest.table });
                     new QRCode(qrCodeDiv, {
-                        text: id, // Utilisez l'identifiant unique de l'invité
+                        text: qrCodeData,
                         width: 64,
                         height: 64
                     });
@@ -660,39 +661,50 @@
             });
 
             function qrCodeSuccessCallback(decodedText, decodedResult) {
-                const guestQuery = query(guestsCollection, where("qrCode", "==", decodedText));
-                getDocs(guestQuery).then((querySnapshot) => {
-                    if (!querySnapshot.empty) {
-                        const guestDoc = querySnapshot.docs[0];
-                        const guest = guestDoc.data();
-                        const scanQuery = query(scansCollection, where("id", "==", decodedText));
-                        getDocs(scanQuery).then((scanSnapshot) => {
-                            if (!scanSnapshot.empty) {
-                                scanResult.textContent = `${guest.name} a déjà été scanné.`;
-                                scanResult.className = 'error';
-                            } else {
-                                const scan = { id: decodedText, name: guest.name, table: guest.table, time: new Date().toISOString() };
-                                addDoc(scansCollection, scan);
-                                scanResult.textContent = `Invité scanné: ${guest.name} - Table: ${guest.table}`;
-                                scanResult.className = 'success';
-                            }
+                try {
+                    const guestData = JSON.parse(decodedText);
+                    const guestQuery = query(guestsCollection, where("id", "==", guestData.id));
+                    getDocs(guestQuery).then((querySnapshot) => {
+                        if (!querySnapshot.empty) {
+                            const guestDoc = querySnapshot.docs[0];
+                            const guest = guestDoc.data();
+                            const scanQuery = query(scansCollection, where("id", "==", guestData.id));
+                            getDocs(scanQuery).then((scanSnapshot) => {
+                                if (!scanSnapshot.empty) {
+                                    scanResult.textContent = `${guest.name} a déjà été scanné.`;
+                                    scanResult.className = 'error';
+                                } else {
+                                    const scan = { id: guestData.id, name: guest.name, table: guest.table, time: new Date().toISOString() };
+                                    addDoc(scansCollection, scan);
+                                    scanResult.textContent = `Invité scanné: ${guest.name} - Table: ${guest.table}`;
+                                    scanResult.className = 'success';
+                                }
+                                setTimeout(() => {
+                                    scanResult.textContent = '';
+                                    scanResult.className = '';
+                                }, 3000);
+
+                                closeScannerModal.click();
+                            });
+                        } else {
+                            scanResult.textContent = "Code QR non reconnu";
+                            scanResult.className = 'error';
                             setTimeout(() => {
                                 scanResult.textContent = '';
                                 scanResult.className = '';
                             }, 3000);
-
                             closeScannerModal.click();
-                        });
-                    } else {
-                        scanResult.textContent = "Code QR non reconnu";
-                        scanResult.className = 'error';
-                        setTimeout(() => {
-                            scanResult.textContent = '';
-                            scanResult.className = '';
-                        }, 3000);
-                        closeScannerModal.click();
-                    }
-                });
+                        }
+                    });
+                } catch (error) {
+                    scanResult.textContent = "Code QR non reconnu";
+                    scanResult.className = 'error';
+                    setTimeout(() => {
+                        scanResult.textContent = '';
+                        scanResult.className = '';
+                    }, 3000);
+                    closeScannerModal.click();
+                }
             }
 
             startScanButton.addEventListener('click', () => {
