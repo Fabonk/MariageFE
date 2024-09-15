@@ -289,7 +289,6 @@
         <div class="section">
             <h2>Scanner un Code QR</h2>
             <button id="startScanButton">Démarrer le scan du code QR</button>
-            <div id="scanResult"></div>
         </div>
     </div>
 
@@ -433,7 +432,7 @@
 
             // Référence aux collections Firestore
             const guestsCollection = collection(db, 'guests');
-            const scansCollection = collection(db, 'scans');
+            const guestScansCollection = collection(db, 'guestscan');
 
             // Écouter les changements dans la liste des invités
             onSnapshot(guestsCollection, (snapshot) => {
@@ -445,7 +444,7 @@
             });
 
             // Écouter les changements dans le journal des scans
-            onSnapshot(scansCollection, (snapshot) => {
+            onSnapshot(guestScansCollection, (snapshot) => {
                 const scans = {};
                 snapshot.forEach(doc => {
                     scans[doc.id] = doc.data();
@@ -545,7 +544,7 @@
                     return;
                 }
                 if (confirm("Êtes-vous sûr de vouloir supprimer ce scan ?")) {
-                    deleteDoc(doc(db, 'scans', id));
+                    deleteDoc(doc(db, 'guestscan', id));
                 }
             }
 
@@ -555,7 +554,7 @@
                     return;
                 }
                 if (confirm("Êtes-vous sûr de vouloir supprimer tous les scans ? Cette action est irréversible.")) {
-                    getDocs(scansCollection).then((snapshot) => {
+                    getDocs(guestScansCollection).then((snapshot) => {
                         snapshot.forEach((doc) => {
                             deleteDoc(doc.ref);
                         });
@@ -663,47 +662,10 @@
             function qrCodeSuccessCallback(decodedText, decodedResult) {
                 try {
                     const guestData = JSON.parse(decodedText);
-                    const guestQuery = query(guestsCollection, where("id", "==", guestData.id));
-                    getDocs(guestQuery).then((querySnapshot) => {
-                        if (!querySnapshot.empty) {
-                            const guestDoc = querySnapshot.docs[0];
-                            const guest = guestDoc.data();
-                            const scanQuery = query(scansCollection, where("id", "==", guestData.id));
-                            getDocs(scanQuery).then((scanSnapshot) => {
-                                if (!scanSnapshot.empty) {
-                                    scanResult.textContent = `${guest.name} a déjà été scanné.`;
-                                    scanResult.className = 'error';
-                                } else {
-                                    const scan = { id: guestData.id, name: guest.name, table: guest.table, time: new Date().toISOString() };
-                                    addDoc(scansCollection, scan);
-                                    scanResult.textContent = `Invité scanné: ${guest.name} - Table: ${guest.table}`;
-                                    scanResult.className = 'success';
-                                }
-                                setTimeout(() => {
-                                    scanResult.textContent = '';
-                                    scanResult.className = '';
-                                }, 3000);
-
-                                closeScannerModal.click();
-                            });
-                        } else {
-                            scanResult.textContent = "Code QR non reconnu";
-                            scanResult.className = 'error';
-                            setTimeout(() => {
-                                scanResult.textContent = '';
-                                scanResult.className = '';
-                            }, 3000);
-                            closeScannerModal.click();
-                        }
-                    });
+                    const scan = { id: guestData.id, name: guestData.name, table: guestData.table, time: new Date().toISOString() };
+                    addDoc(guestScansCollection, scan);
                 } catch (error) {
-                    scanResult.textContent = "Code QR non reconnu";
-                    scanResult.className = 'error';
-                    setTimeout(() => {
-                        scanResult.textContent = '';
-                        scanResult.className = '';
-                    }, 3000);
-                    closeScannerModal.click();
+                    console.error('Erreur lors du décodage du QR Code:', error);
                 }
             }
 
