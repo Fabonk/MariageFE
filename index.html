@@ -9,6 +9,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="shortcut icon" href="fe.jpg" type="image/x-icon">
     <style>
         @font-face {
@@ -265,10 +266,10 @@
 
     <nav>
         <ul>
-            <li><a href="#" onclick="showPage('home')">Accueil</a></li>
-            <li><a href="#" onclick="showPage('guests')">Invités</a></li>
-            <li><a href="#" onclick="showPage('scanner')">Scanner</a></li>
-            <li><a href="#" onclick="showPage('log')">Journal</a></li>
+           <li><a href="#" onclick="showPage('home')"><i class="fas fa-home"></i></a></li>
+            <li><a href="#" onclick="showPage('guests')"><i class="fas fa-users"></i></a></li>
+            <li><a href="#" onclick="showPage('scanner')"><i class="fas fa-qrcode"></i></a></li>
+            <li><a href="#" onclick="showPage('log')"><i class="fas fa-book"></i></a></li>
         </ul>
     </nav>
 
@@ -482,7 +483,7 @@
             }
 
             const logoutButton = document.createElement('li');
-            logoutButton.innerHTML = '<a href="#" id="logoutLink">Déconnexion</a>';
+            logoutButton.innerHTML = '<a href="#" id="logoutLink"><i class="fas fa-sign-out-alt"></i></a>';
             document.querySelector('nav ul').appendChild(logoutButton);
 
             document.getElementById('logoutLink').addEventListener('click', (e) => {
