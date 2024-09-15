@@ -464,6 +464,7 @@
                 });
                 updateGuestList(guests);
             });
+            
 
             // Écouter les changements dans le journal des scans
             onSnapshot(guestScansCollection, (snapshot) => {
@@ -492,75 +493,82 @@
             });
 
             function updateGuestList(guests) {
-                guestList.innerHTML = '';
-                const guestCount = Object.keys(guests).length;
-                guestCountElement.textContent = `Nombre total d'invités : ${guestCount}`;
+    guestList.innerHTML = '';
+    const guestCount = Object.keys(guests).length;
+    guestCountElement.textContent = `Nombre total d'invités : ${guestCount}`;
 
-                // Trier les invités par le nom de la table, puis par le nom de l'invité
-                const sortedGuests = Object.entries(guests).sort((a, b) => {
-                    if (a[1].table.localeCompare(b[1].table) === 0) {
-                        return a[1].name.localeCompare(b[1].name);
-                    }
-                    return a[1].table.localeCompare(b[1].table);
-                });
+    // Trier les invités par le nom de la table, puis par le nom de l'invité
+    const sortedGuests = Object.entries(guests).sort((a, b) => {
+        const tableA = a[1].table || '';
+        const tableB = b[1].table || '';
+        if (tableA.localeCompare(tableB) === 0) {
+            return (a[1].name || '').localeCompare(b[1].name || '');
+        }
+        return tableA.localeCompare(tableB);
+    });
 
-                sortedGuests.forEach(([id, guest]) => {
-                    const li = document.createElement('li');
+    sortedGuests.forEach(([id, guest]) => {
+        if (!guest || typeof guest !== 'object') {
+            console.warn(`Invité invalide détecté pour l'ID: ${id}`, guest);
+            return;
+        }
 
-                    const guestInfo = document.createElement('div');
-                    guestInfo.className = 'guest-info';
+        const li = document.createElement('li');
 
-                    const guestName = document.createElement('span');
-                    guestName.className = 'guest-name';
-                    guestName.textContent = guest.name;
+        const guestInfo = document.createElement('div');
+        guestInfo.className = 'guest-info';
 
-                    const guestTable = document.createElement('span');
-                    guestTable.textContent = ` - Table: ${guest.table}`;
+        const guestName = document.createElement('span');
+        guestName.className = 'guest-name';
+        guestName.textContent = guest.name || 'Invité sans nom';
 
-                    guestInfo.appendChild(guestName);
-                    guestInfo.appendChild(guestTable);
+        const guestTable = document.createElement('span');
+        guestTable.textContent = ` - Table: ${guest.table || 'Non assignée'}`;
 
-                    const qrCodeDiv = document.createElement('div');
-                    qrCodeDiv.className = 'qr-code';
+        guestInfo.appendChild(guestName);
+        guestInfo.appendChild(guestTable);
 
-                    const actionsDiv = document.createElement('div');
-                    actionsDiv.className = 'guest-actions';
+        const qrCodeDiv = document.createElement('div');
+        qrCodeDiv.className = 'qr-code';
 
-                    const editButton = document.createElement('button');
-                    editButton.innerHTML = '<i class="fas fa-edit"></i>';
-                    editButton.className = 'edit-btn';
-                    editButton.title = 'Modifier';
-                    editButton.onclick = () => editGuest(id, guest);
+        const actionsDiv = document.createElement('div');
+        actionsDiv.className = 'guest-actions';
 
-                    const deleteButton = document.createElement('button');
-                    deleteButton.innerHTML = '<i class="fas fa-trash-alt"></i>';
-                    deleteButton.className = 'delete-btn';
-                    deleteButton.title = 'Supprimer';
-                    deleteButton.onclick = () => deleteGuest(id);
+        const editButton = document.createElement('button');
+        editButton.innerHTML = '<i class="fas fa-edit"></i>';
+        editButton.className = 'edit-btn';
+        editButton.title = 'Modifier';
+        editButton.onclick = () => editGuest(id, guest);
 
-                    actionsDiv.appendChild(editButton);
-                    actionsDiv.appendChild(deleteButton);
+        const deleteButton = document.createElement('button');
+        deleteButton.innerHTML = '<i class="fas fa-trash-alt"></i>';
+        deleteButton.className = 'delete-btn';
+        deleteButton.title = 'Supprimer';
+        deleteButton.onclick = () => deleteGuest(id);
 
-                    li.appendChild(guestInfo);
-                    li.appendChild(qrCodeDiv);
-                    li.appendChild(actionsDiv);
-                    guestList.appendChild(li);
+        actionsDiv.appendChild(editButton);
+        actionsDiv.appendChild(deleteButton);
 
-                    // Générer le code QR avec les informations de l'invité et de la table
-                    const qrCodeData = JSON.stringify({ id, name: guest.name, table: guest.table });
-                    new QRCode(qrCodeDiv, {
-                        text: qrCodeData,
-                        width: 64,
-                        height: 64,
-                        correctLevel: QRCode.CorrectLevel.L // Niveau de correction bas pour un code QR simple
-                    });
+        li.appendChild(guestInfo);
+        li.appendChild(qrCodeDiv);
+        li.appendChild(actionsDiv);
+        guestList.appendChild(li);
 
-                    // Convertir le QR code en data URL et stocker dans Firestore
-                    const qrCodeImage = qrCodeDiv.querySelector('img').src;
-                    setDoc(doc(db, 'guests', id), { ...guest, qrCode: qrCodeImage });
-                });
-            }
-
+        // Générer le code QR avec les informations de l'invité et de la table
+        const qrCodeData = JSON.stringify({ id, name: guest.name || 'Invité sans nom', table: guest.table || 'Non assignée' });
+        try {
+            new QRCode(qrCodeDiv, {
+                text: qrCodeData,
+                width: 64,
+                height: 64,
+                correctLevel: QRCode.CorrectLevel.L
+            });
+        } catch (error) {
+            console.error(`Erreur lors de la génération du QR code pour l'invité ${guest.name}:`, error);
+            qrCodeDiv.textContent = 'QR code non disponible';
+        }
+    });
+}
             function deleteScan(id) {
                 if (currentUser.role !== 'admin') {
                     alert("Vous n'avez pas l'autorisation de supprimer les scans.");
